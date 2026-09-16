@@ -102,7 +102,7 @@ fn file_input_is_sent_verbatim() {
 }
 
 #[test]
-fn directory_scans_files_in_order_with_colors_and_continues_after_errors() {
+fn directory_scans_files_with_colors_and_continues_after_errors() {
     let directory = tempfile::tempdir().unwrap();
     for name in ["a.txt", "b.txt", "c.txt"] {
         std::fs::write(directory.path().join(name), name).unwrap();
@@ -114,18 +114,19 @@ fn directory_scans_files_in_order_with_colors_and_continues_after_errors() {
     let server = tiny_http::Server::http("127.0.0.1:0").unwrap();
     let endpoint = format!("http://{}/v1/systemone", server.server_addr());
     let worker = thread::spawn(move || {
-        for (name, probability) in [
-            ("a.txt", 0.1),
-            ("b.txt", 0.2),
-            ("c.txt", 0.97),
-            ("z.txt", 0.0),
-        ] {
+        for _ in 0..4 {
             let mut request = server
                 .recv_timeout(Duration::from_secs(10))
                 .unwrap()
                 .unwrap();
             let body: Value = serde_json::from_reader(request.as_reader()).unwrap();
-            assert_eq!(body["state"]["text"], name);
+            let probability = match body["state"]["text"].as_str().unwrap() {
+                "a.txt" => 0.1,
+                "b.txt" => 0.2,
+                "c.txt" => 0.97,
+                "z.txt" => 0.0,
+                name => panic!("unexpected file: {name}"),
+            };
             request
                 .respond(tiny_http::Response::from_string(
                     answer(probability).to_string(),
@@ -144,11 +145,76 @@ fn directory_scans_files_in_order_with_colors_and_continues_after_errors() {
         .unwrap();
     worker.join().unwrap();
     assert_eq!(output.status.code(), Some(1));
-    assert_eq!(
-        String::from_utf8(output.stdout).unwrap(),
-        "\x1b[1;31m0.1\x1b[0m a.txt\n\x1b[1;32m0.2\x1b[0m b.txt\n\x1b[1;32m0.97\x1b[0m c.txt\n\x1b[1;31m0\x1b[0m z.txt\n"
-    );
+    let output_text = String::from_utf8(output.stdout).unwrap();
+    let mut lines: Vec<_> = output_text.lines().collect();
+    lines.sort();
+    let mut expected = vec![
+        "\x1b[1;31m0.1\x1b[0m a.txt",
+        "\x1b[1;32m0.2\x1b[0m b.txt",
+        "\x1b[1;32m0.97\x1b[0m c.txt",
+        "\x1b[1;31m0\x1b[0m z.txt",
+    ];
+    expected.sort();
+    assert_eq!(lines, expected);
     assert!(String::from_utf8_lossy(&output.stderr).contains("empty.txt: input text is empty"));
+}
+
+#[test]
+fn phi_launches_all_requests_and_streams_completed_results_before_slower_files() {
+    use std::io::{BufRead, BufReader};
+    let directory = tempfile::tempdir().unwrap();
+    for name in ["a.txt", "b.txt", "c.txt"] {
+        std::fs::write(directory.path().join(name), name).unwrap();
+    }
+    let server = tiny_http::Server::http("127.0.0.1:0").unwrap();
+    let mut child = command()
+        .arg("phi")
+        .arg(directory.path())
+        .env("TYPESAFE_API_KEY", "test-key")
+        .env(
+            "TYPESAFE_ENDPOINT",
+            format!("http://{}/v1/systemone", server.server_addr()),
+        )
+        .stdout(Stdio::piped())
+        .stderr(Stdio::piped())
+        .spawn()
+        .unwrap();
+    let mut pending = std::collections::HashMap::new();
+    // A serial implementation cannot deliver all three requests before any response.
+    for _ in 0..3 {
+        let mut request = server
+            .recv_timeout(Duration::from_secs(10))
+            .unwrap()
+            .expect("all requests must be in flight concurrently");
+        let body: Value = serde_json::from_reader(request.as_reader()).unwrap();
+        pending.insert(body["state"]["text"].as_str().unwrap().to_owned(), request);
+    }
+    let stdout = child.stdout.take().unwrap();
+    let (sender, receiver) = std::sync::mpsc::channel();
+    let reader = thread::spawn(move || {
+        for line in BufReader::new(stdout).lines() {
+            sender.send(line.unwrap()).unwrap();
+        }
+    });
+    // Hold the first file back, and require each other line to arrive before releasing it.
+    for name in ["c.txt", "b.txt", "a.txt"] {
+        assert!(child.try_wait().unwrap().is_none());
+        pending
+            .remove(name)
+            .unwrap()
+            .respond(tiny_http::Response::from_string(answer(0.7).to_string()))
+            .unwrap();
+        assert_eq!(
+            receiver
+                .recv_timeout(Duration::from_secs(10))
+                .expect("result must flush immediately"),
+            format!("0.7 {name}")
+        );
+    }
+    let output = child.wait_with_output().unwrap();
+    reader.join().unwrap();
+    assert!(output.status.success(), "{output:?}");
+    assert!(output.stderr.is_empty());
 }
 
 #[test]

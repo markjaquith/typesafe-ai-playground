@@ -27,9 +27,10 @@ Input is sent in full to TypeSafe in one evaluation, without truncation. PDF and
 other binary formats must first be converted to text. Empty input is an error.
 When a file is supplied, it takes precedence over stdin.
 
-Directories are scanned in filename order, including hidden regular files, without
-recursing into subdirectories or following symlinks. Each file is evaluated
-separately. A failed file is reported on stderr; scanning continues and the command
+Directories include hidden regular files, without recursing into subdirectories
+or following symlinks. PHI evaluations launch concurrently for all files, with
+each result printed and flushed immediately in completion order. Each file is
+evaluated separately. A failed file is reported on stderr; scanning continues and the command
 exits nonzero if any files failed. An empty directory produces no output.
 
 Successful output is one line per file: the Noul value followed by its base name

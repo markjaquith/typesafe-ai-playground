@@ -176,6 +176,7 @@ fn run(cli: Cli) -> Result<()> {
                 && (io::stdout().is_terminal()
                     || std::env::var("CLICOLOR_FORCE").is_ok_and(|v| !v.is_empty() && v != "0"));
             let mut failed = 0;
+            let (sender, receiver) = std::sync::mpsc::channel();
             for input in inputs {
                 let name = input
                     .as_ref()
@@ -193,13 +194,26 @@ fn run(cli: Cli) -> Result<()> {
                         }
                     })
                     .collect();
-                let result = (|| {
-                    let text = match &single_text {
-                        Some(text) => text.clone(),
-                        None => read_input(input.as_deref())?,
-                    };
-                    evaluate(&text, &args.model, &endpoint, &key)
-                })();
+                let sender = sender.clone();
+                let single_text = single_text.clone();
+                let model = args.model.clone();
+                let endpoint = endpoint.clone();
+                let key = key.clone();
+                std::thread::Builder::new()
+                    .spawn(move || {
+                        let result = (|| {
+                            let text = match single_text {
+                                Some(text) => text,
+                                None => read_input(input.as_deref())?,
+                            };
+                            evaluate(&text, &model, &endpoint, &key)
+                        })();
+                        let _ = sender.send((name, result));
+                    })
+                    .context("could not start PHI request worker")?;
+            }
+            drop(sender);
+            for (name, result) in receiver {
                 match result {
                     Ok(answer) => {
                         let value = answer.noul;
@@ -210,6 +224,7 @@ fn run(cli: Cli) -> Result<()> {
                         } else {
                             writeln!(stdout, "{value} {name}")?;
                         }
+                        stdout.flush()?;
                     }
                     Err(error) if directory.is_some() => {
                         eprintln!("error: {name}: {error:#}");
