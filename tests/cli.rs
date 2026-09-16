@@ -388,16 +388,8 @@ fn code_comments_batch_two_questions_per_span_for_file_directory_and_stdin() {
         assert!(text.contains(&format!("{name}:4\n")));
         assert_eq!(text.matches("79/100").count(), 2);
         assert_eq!(text.matches("8/100").count(), 2);
-        assert_eq!(
-            text.matches("79/100 · Mostly accurate")
-                .count(),
-            2
-        );
-        assert_eq!(
-            text.matches("8/100 · No useful information")
-                .count(),
-            2
-        );
+        assert_eq!(text.matches("79/100 · Mostly accurate").count(), 2);
+        assert_eq!(text.matches("8/100 · No useful information").count(), 2);
         assert_eq!(text.matches("Usefulness:").count(), 2);
         assert!(text.contains("│ // Keep the historical delay. │"));
         assert!(text.contains("│ // Old clients depend on it.  │"));

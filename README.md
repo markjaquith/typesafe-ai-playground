@@ -119,9 +119,39 @@ Historical claims are evaluated against available source context, rather than
 external history. Source is sent in full without truncation, so it must fit the
 selected model's request limits.
 
+## Live tone analysis
+
+```sh
+typesafe-ai be-nice
+typesafe-ai be-nice --model jev-latest
+```
+
+Opens an interactive terminal view with a single-line text editor and a five-level
+tone scale:
+
+** Really nice →  Kinda nice → 󰇶 Neutral →  Kinda mean → 󰱪 Mean**
+
+After a **50ms pause in typing**, the current text is sent as one Score question.
+Its weighted 0–4 score positions the icon on a green-to-red bar. Old responses
+cannot overwrite newer text's score. The last score remains visible while editing;
+empty input clears the marker and score text and is not scored. Cost is reported
+on exit and counts completed requests, including superseded ones.
+Nerd Font icons render best with a Nerd Font terminal font; text labels are also
+shown.
+
+Use arrow keys or **Ctrl-B/F** to move, **Home/End** or **Ctrl-A/E** for start/end,
+**Alt-B/F** to move by word, **Ctrl-U/K/W** to cut, and **Ctrl-Y** to yank.
+**Backspace/Ctrl-H** deletes left; **Delete/Ctrl-D** deletes right. Pasted newlines
+are converted to spaces. **F1** shows editing help, **Esc** closes help, and
+**Ctrl-C** quits. Ordinary `q`, `j`, and `?` remain text input.
+
+Exiting restores the terminal and prints the cost summary to stderr. If requests
+are still in flight on exit, their costs are reported as unknown rather than
+blocking terminal exit. `NO_COLOR` disables the color scale.
+
 ## Configuration
 
-Both commands print one cost summary to **stderr** when finished, for example:
+All commands print one cost summary to **stderr** when finished, for example:
 
 ```text
 Cost: 0.0042¢

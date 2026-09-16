@@ -10,6 +10,7 @@ use serde::Deserialize;
 use serde_json::json;
 use usage::{Args, Cli, Subcommands};
 
+mod be_nice;
 mod code_comment;
 mod cost;
 use cost::Cost;
@@ -28,6 +29,8 @@ enum Commands {
     Phi(Phi),
     /// Score JS/TS comments for accuracy and usefulness.
     CodeComments(Phi),
+    /// Interactively score text from nice to mean as you type.
+    BeNice(be_nice::Options),
 }
 
 #[derive(Args)]
@@ -167,6 +170,7 @@ fn request(
 
 fn run(cli: Cli, cost: &Cost) -> Result<()> {
     match cli.command {
+        Commands::BeNice(args) => be_nice::run(args, cost)?,
         Commands::CodeComments(args) => code_comment::run(args, cost)?,
         Commands::Phi(args) => {
             let directory = args.file.as_ref().filter(|path| path.is_dir());

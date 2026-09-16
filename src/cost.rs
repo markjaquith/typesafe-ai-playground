@@ -52,6 +52,13 @@ struct Usage {
 }
 
 impl Cost {
+    pub(crate) fn merge(&self, other: &Self) {
+        let other = other.0.lock().unwrap();
+        let mut totals = self.0.lock().unwrap();
+        totals.tokens += other.tokens;
+        totals.missing_usage += other.missing_usage;
+    }
+
     pub(crate) fn record(&self, response: Option<&serde_json::Value>) {
         let usage = response
             .and_then(|response| response.get("usage"))
