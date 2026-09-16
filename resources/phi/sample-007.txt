@@ -1,0 +1,39 @@
+The discussion notes possible selection effects. People or events missing from the source material may differ from those represented in the analysis.
+
+The report summarizes asthma prevalence across a region of several million residents. Only broad age bands appear in the tables.
+
+The smallest published group contains more than ten thousand people. No row describes an individual.
+
+Geography is limited to the regional level. Street addresses and postal codes are absent.
+
+The data dictionary explains the units associated with numeric fields. A value without its unit can be misread even when the number itself is accurate.
+
+The appendix describes how duplicate rows were handled. It also explains why some apparently similar rows were retained as separate observations.
+
+The working group reviewed the tables before writing the conclusion. Several early interpretations were narrowed after the denominators were checked.
+
+The final package includes the methods narrative and a versioned summary. Readers are asked to cite the version they actually consulted because the layout may change.
+
+The source extracts were aggregated before this report was prepared. The report contains no keys back to those extracts.
+
+One chart compares rates over five-year periods. Exact encounter dates are not included.
+
+The authors discuss air quality as a possible contributing factor. The discussion does not attribute an exposure or condition to a named resident.
+
+The analysis plan was written before the summary tables were assembled. Changes to the plan are recorded separately so the final report can distinguish planned work from exploratory work.
+
+The export uses a fixed column order and a documented character encoding. Missing entries remain empty instead of being silently converted to zero.
+
+The methods section distinguishes the source population from the analyzed subset. These groups can differ when records fail basic completeness checks.
+
+The team checked whether the same calculation produced the same result on a second run. Intermediate outputs were retained long enough to compare the two runs.
+
+The appendix lists public statistical methods. It does not include case narratives.
+
+The final table reports rounded percentages. It cannot be used as an appointment or patient roster.
+
+Several charts use the same vertical scale to support comparison. The captions explain when a chart uses a different denominator or a different reporting window.
+
+The report describes the uncertainty around each estimate. A small difference between groups should not automatically be treated as a meaningful trend.
+
+The review log separates formatting corrections from analytical revisions. This makes it easier to see whether a change affected the underlying results.

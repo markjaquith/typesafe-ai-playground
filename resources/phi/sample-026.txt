@@ -1,0 +1,39 @@
+The case report describes a person in their late eighties with an uncommon enzyme disorder. The name has been omitted.
+
+The methods section distinguishes the source population from the analyzed subset. These groups can differ when records fail basic completeness checks.
+
+The team checked whether the same calculation produced the same result on a second run. Intermediate outputs were retained long enough to compare the two runs.
+
+Several charts use the same vertical scale to support comparison. The captions explain when a chart uses a different denominator or a different reporting window.
+
+The report describes the uncertainty around each estimate. A small difference between groups should not automatically be treated as a meaningful trend.
+
+The location is a rural coastal county. No town is given.
+
+The patient previously worked as a lighthouse engineer. The narrative includes this detail as part of the occupational history.
+
+The encounter year is 2025. Month and day have been removed.
+
+The review log separates formatting corrections from analytical revisions. This makes it easier to see whether a change affected the underlying results.
+
+The discussion notes possible selection effects. People or events missing from the source material may differ from those represented in the analysis.
+
+The data dictionary explains the units associated with numeric fields. A value without its unit can be misread even when the number itself is accurate.
+
+The appendix describes how duplicate rows were handled. It also explains why some apparently similar rows were retained as separate observations.
+
+The report describes a change in mobility after treatment. No photograph accompanies it.
+
+The preparation note says direct identifiers were deleted. It does not mention a formal assessment of the remaining combination.
+
+The working group reviewed the tables before writing the conclusion. Several early interpretations were narrowed after the denominators were checked.
+
+The final package includes the methods narrative and a versioned summary. Readers are asked to cite the version they actually consulted because the layout may change.
+
+The analysis plan was written before the summary tables were assembled. Changes to the plan are recorded separately so the final report can distinguish planned work from exploratory work.
+
+The export uses a fixed column order and a documented character encoding. Missing entries remain empty instead of being silently converted to zero.
+
+The county may have few residents matching the age and occupation. The report supplies no population count for that subgroup.
+
+The clinical team requested feedback on the narrative. No record number or contact details are included.

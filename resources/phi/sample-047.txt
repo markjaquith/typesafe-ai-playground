@@ -1,0 +1,39 @@
+The encounter closes with a summary of the next step. The team uses the same workflow whether the next action is testing, observation, or another appointment.
+
+Patient Tavian Moss, born June 3, 1983, was admitted to Larkspur Behavioral Hospital under record LBH-881604. The admission began September 2, 2026.
+
+The discharge diagnosis is bipolar I disorder, current manic episode in partial remission. The summary describes improvement during the admission.
+
+The discharge medication list includes lithium carbonate 300 mg twice daily. A serum level check is ordered for the following week.
+
+The visit template separates the reported history from the examination findings. This distinction helps a later reader understand where each observation came from.
+
+The medication review asks about prescriptions, nonprescription products, and supplements. The list is reconciled before the plan is finalized.
+
+The care instructions are written in short sections. Important follow-up actions appear near the beginning so they are easier to find after the visit.
+
+The clinician reviews whether additional testing would change the next step. Tests are discussed alongside their limitations rather than presented as automatic answers.
+
+The residence is 76 Pale Fern Avenue, Bellhaven, MA 02139. The discharge planner verified the address with the patient.
+
+The patient's mobile number is 202-555-0192. The email listed for appointment reminders is tavian.moss@example.com.
+
+The discharge date is September 12, 2026. An outpatient psychiatry visit is scheduled for September 19, 2026.
+
+The assessment section records the working explanation for the symptoms. It also leaves room for alternatives that may need reconsideration if the course changes.
+
+The discharge workflow includes a check that the instructions are readable. A printed copy can be offered when the electronic version is inconvenient.
+
+The follow-up plan distinguishes routine review from reasons to seek earlier help. The timing depends on the course described in the assessment.
+
+The charting guide recommends recording relevant negatives as well as positive findings. This helps show which possibilities were considered during the encounter.
+
+The summary records sleep improvement and a plan for ongoing monitoring. It also lists the clinician responsible for follow-up within the fictional facility.
+
+The document includes full demographics and detailed psychiatric treatment. Every clinical section is associated with the same named patient and record number.
+
+The care team checks whether the proposed plan is practical. Cost, transportation, and the ability to follow instructions can affect what happens after a visit.
+
+The note is reviewed for internal consistency before it is signed. Conflicting entries are clarified rather than copied forward into the next document.
+
+The communication section records how the plan was explained. Questions that remain unresolved are identified for the next conversation.

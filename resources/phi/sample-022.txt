@@ -1,0 +1,39 @@
+The spreadsheet note describes case R-18 as showing elevated glucose. The code appears in the first column.
+
+The second column contains a broad age band. No full birth date is shown.
+
+The working group reviewed the tables before writing the conclusion. Several early interpretations were narrowed after the denominators were checked.
+
+The final package includes the methods narrative and a versioned summary. Readers are asked to cite the version they actually consulted because the layout may change.
+
+The analysis plan was written before the summary tables were assembled. Changes to the plan are recorded separately so the final report can distinguish planned work from exploratory work.
+
+The export uses a fixed column order and a documented character encoding. Missing entries remain empty instead of being silently converted to zero.
+
+The analyst could not find a code dictionary in the supplied folder. It is unclear whether the identifier was randomly assigned.
+
+The document includes a repeat measurement several weeks later. No calendar dates remain.
+
+A footer calls the file an evaluation extract. It does not say whether the evaluation used actual records or generated examples.
+
+The methods section distinguishes the source population from the analyzed subset. These groups can differ when records fail basic completeness checks.
+
+The team checked whether the same calculation produced the same result on a second run. Intermediate outputs were retained long enough to compare the two runs.
+
+Several charts use the same vertical scale to support comparison. The captions explain when a chart uses a different denominator or a different reporting window.
+
+The report describes the uncertainty around each estimate. A small difference between groups should not automatically be treated as a meaningful trend.
+
+The source system name was removed during export. No facility can be inferred from the visible header.
+
+The clinical values are plausible and internally consistent. That fact does not resolve their provenance.
+
+The analyst asks the sender to explain the identifiers. The reply is not included in this packet.
+
+The review log separates formatting corrections from analytical revisions. This makes it easier to see whether a change affected the underlying results.
+
+The discussion notes possible selection effects. People or events missing from the source material may differ from those represented in the analysis.
+
+The data dictionary explains the units associated with numeric fields. A value without its unit can be misread even when the number itself is accurate.
+
+The appendix describes how duplicate rows were handled. It also explains why some apparently similar rows were retained as separate observations.

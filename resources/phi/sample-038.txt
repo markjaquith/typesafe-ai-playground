@@ -1,0 +1,39 @@
+The methods section distinguishes the source population from the analyzed subset. These groups can differ when records fail basic completeness checks.
+
+The monitoring report belongs to patient account LM-81044. The patient name field was suppressed in this copy.
+
+The implantable cardiac device serial is LARK-CI-880217. The same serial appears on the enrollment record held by the clinic.
+
+The report contains an episode of atrial tachycardia. It includes a precise timestamp of September 9, 2026, at 02:14.
+
+The team checked whether the same calculation produced the same result on a second run. Intermediate outputs were retained long enough to compare the two runs.
+
+Several charts use the same vertical scale to support comparison. The captions explain when a chart uses a different denominator or a different reporting window.
+
+The report describes the uncertainty around each estimate. A small difference between groups should not automatically be treated as a meaningful trend.
+
+The review log separates formatting corrections from analytical revisions. This makes it easier to see whether a change affected the underlying results.
+
+The device uploaded through the home monitoring service. The network address has been removed.
+
+The clinician requested a review of the rhythm strip. That request is linked to the patient account.
+
+The discussion notes possible selection effects. People or events missing from the source material may differ from those represented in the analysis.
+
+The data dictionary explains the units associated with numeric fields. A value without its unit can be misread even when the number itself is accurate.
+
+The appendix describes how duplicate rows were handled. It also explains why some apparently similar rows were retained as separate observations.
+
+The working group reviewed the tables before writing the conclusion. Several early interpretations were narrowed after the denominators were checked.
+
+The serial number identifies a device assigned to one person. The report is not a fleet maintenance summary.
+
+The export retains the sequence of episodes over a week. This permits longitudinal tracking even without a displayed name.
+
+The report was delivered to the patient's electrophysiology team. The account and device linkage remain operational.
+
+The final package includes the methods narrative and a versioned summary. Readers are asked to cite the version they actually consulted because the layout may change.
+
+The analysis plan was written before the summary tables were assembled. Changes to the plan are recorded separately so the final report can distinguish planned work from exploratory work.
+
+The export uses a fixed column order and a documented character encoding. Missing entries remain empty instead of being silently converted to zero.

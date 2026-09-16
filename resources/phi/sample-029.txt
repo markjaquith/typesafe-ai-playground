@@ -1,0 +1,39 @@
+The report describes the uncertainty around each estimate. A small difference between groups should not automatically be treated as a meaningful trend.
+
+The extract lists participant P-203 with a new diagnosis of atrial fibrillation. No direct name is present.
+
+The study team retained some enrollment documents. This packet does not say whether they link to participant codes.
+
+The review log separates formatting corrections from analytical revisions. This makes it easier to see whether a change affected the underlying results.
+
+The discussion notes possible selection effects. People or events missing from the source material may differ from those represented in the analysis.
+
+The data dictionary explains the units associated with numeric fields. A value without its unit can be misread even when the number itself is accurate.
+
+The appendix describes how duplicate rows were handled. It also explains why some apparently similar rows were retained as separate observations.
+
+The participant's age is reported as 71. Only the enrollment year is shown.
+
+A note gives the occupation retired ferry captain. The study region is described as a small island district.
+
+The contact column was removed before the extract was sent. The participant code remains unchanged across visits.
+
+The working group reviewed the tables before writing the conclusion. Several early interpretations were narrowed after the denominators were checked.
+
+The final package includes the methods narrative and a versioned summary. Readers are asked to cite the version they actually consulted because the layout may change.
+
+The analysis plan was written before the summary tables were assembled. Changes to the plan are recorded separately so the final report can distinguish planned work from exploratory work.
+
+The export uses a fixed column order and a documented character encoding. Missing entries remain empty instead of being silently converted to zero.
+
+The analyst asks whether P-203 is a randomly generated export code. No answer appears in the review notes.
+
+The report includes a medication change after the diagnosis. The code links that change to the earlier visit.
+
+The available file cannot settle how readily the record could be reidentified. It preserves more linkage than a simple aggregate table.
+
+The methods section distinguishes the source population from the analyzed subset. These groups can differ when records fail basic completeness checks.
+
+The team checked whether the same calculation produced the same result on a second run. Intermediate outputs were retained long enough to compare the two runs.
+
+Several charts use the same vertical scale to support comparison. The captions explain when a chart uses a different denominator or a different reporting window.

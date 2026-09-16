@@ -1,0 +1,39 @@
+The research extract identifies subject C-441 with chronic kidney disease. The subject's name is absent from the extract.
+
+A methods note says the enrollment office retains the code key. The analyst receiving this copy cannot directly access it.
+
+Dates are shifted by a consistent offset for each participant. The offset is not disclosed in this file.
+
+The discussion notes possible selection effects. People or events missing from the source material may differ from those represented in the analysis.
+
+The data dictionary explains the units associated with numeric fields. A value without its unit can be misread even when the number itself is accurate.
+
+The appendix describes how duplicate rows were handled. It also explains why some apparently similar rows were retained as separate observations.
+
+The working group reviewed the tables before writing the conclusion. Several early interpretations were narrowed after the denominators were checked.
+
+The age is recorded as 58 and the county field remains populated. The location is broader than a street address.
+
+Laboratory values appear over three visits. The same subject code links the sequence.
+
+The final package includes the methods narrative and a versioned summary. Readers are asked to cite the version they actually consulted because the layout may change.
+
+The analysis plan was written before the summary tables were assembled. Changes to the plan are recorded separately so the final report can distinguish planned work from exploratory work.
+
+The export uses a fixed column order and a documented character encoding. Missing entries remain empty instead of being silently converted to zero.
+
+The methods section distinguishes the source population from the analyzed subset. These groups can differ when records fail basic completeness checks.
+
+The consent form is stored separately under the original enrollment number. The relationship between that number and C-441 is maintained by the coordinator.
+
+The report is intended for internal study review. It is not an aggregate-only publication.
+
+The extract therefore preserves a route back to an individual through another office. The exact linkage procedure is not reproduced here.
+
+The team checked whether the same calculation produced the same result on a second run. Intermediate outputs were retained long enough to compare the two runs.
+
+Several charts use the same vertical scale to support comparison. The captions explain when a chart uses a different denominator or a different reporting window.
+
+The report describes the uncertainty around each estimate. A small difference between groups should not automatically be treated as a meaningful trend.
+
+The review log separates formatting corrections from analytical revisions. This makes it easier to see whether a change affected the underlying results.

@@ -1,0 +1,39 @@
+The narrative describes an adult treated for a common respiratory infection. Names and exact dates have been removed.
+
+The report describes the uncertainty around each estimate. A small difference between groups should not automatically be treated as a meaningful trend.
+
+The review log separates formatting corrections from analytical revisions. This makes it easier to see whether a change affected the underlying results.
+
+The discussion notes possible selection effects. People or events missing from the source material may differ from those represented in the analysis.
+
+The data dictionary explains the units associated with numeric fields. A value without its unit can be misread even when the number itself is accurate.
+
+The person lives somewhere in a large inland state. The report does not give a town or postal code.
+
+The age is rounded to the nearest decade. The occupation is described only as service work.
+
+The appendix describes how duplicate rows were handled. It also explains why some apparently similar rows were retained as separate observations.
+
+The working group reviewed the tables before writing the conclusion. Several early interpretations were narrowed after the denominators were checked.
+
+The final package includes the methods narrative and a versioned summary. Readers are asked to cite the version they actually consulted because the layout may change.
+
+The analysis plan was written before the summary tables were assembled. Changes to the plan are recorded separately so the final report can distinguish planned work from exploratory work.
+
+The treatment included a short course of medication. The narrative omits the dispensing pharmacy.
+
+A relative helped with transportation. No relationship more specific than relative is recorded.
+
+The case was included because the follow-up process was typical. It does not describe an unusual event.
+
+The export uses a fixed column order and a documented character encoding. Missing entries remain empty instead of being silently converted to zero.
+
+The methods section distinguishes the source population from the analyzed subset. These groups can differ when records fail basic completeness checks.
+
+The team checked whether the same calculation produced the same result on a second run. Intermediate outputs were retained long enough to compare the two runs.
+
+Several charts use the same vertical scale to support comparison. The captions explain when a chart uses a different denominator or a different reporting window.
+
+The author states that the linking worksheet was not included in the archive. The narrative itself has no visible study code.
+
+The final paragraph reports improvement. It offers no contact route for the person described.
