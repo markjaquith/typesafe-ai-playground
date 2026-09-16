@@ -67,7 +67,7 @@ fn score(args: &[&str], text: &str, response: Value, status: u16) -> Output {
 }
 
 fn answer(value: f64) -> Value {
-    json!({"answers": {"phi": {"type": "noul", "noul": value}}})
+    json!({"answers": {"phi": {"type": "noul", "noul": value}}, "usage": {"input_tokens": 1000, "output_tokens": 9000}})
 }
 
 #[test]
@@ -75,7 +75,7 @@ fn stdin_and_explicit_dash_return_noul_and_name() {
     for args in [vec!["phi"], vec!["phi", "-"]] {
         let output = score(&args, "Jane Doe has diabetes.\n", answer(0.97), 200);
         assert!(output.status.success(), "{:?}", output);
-        assert!(output.stderr.is_empty());
+        assert_eq!(String::from_utf8_lossy(&output.stderr), "Cost: 0.0042¢\n");
         assert_eq!(String::from_utf8(output.stdout).unwrap(), "0.97 -\n");
     }
 }
@@ -157,6 +157,30 @@ fn directory_scans_files_with_colors_and_continues_after_errors() {
     expected.sort();
     assert_eq!(lines, expected);
     assert!(String::from_utf8_lossy(&output.stderr).contains("empty.txt: input text is empty"));
+    assert!(String::from_utf8_lossy(&output.stderr).ends_with("Cost: 0.0168¢\n"));
+}
+
+#[test]
+fn usage_is_counted_even_when_the_answer_is_invalid() {
+    let output = score(&["phi"], "Sample text", answer(1.1), 200);
+    assert!(!output.status.success());
+    assert!(String::from_utf8_lossy(&output.stderr).ends_with("Cost: 0.0042¢\n"));
+}
+
+#[test]
+fn missing_usage_preserves_answers_but_reports_unknown_cost() {
+    let output = score(
+        &["phi"],
+        "Sample text",
+        json!({"answers": {"phi": {"type": "noul", "noul": 0.7}}}),
+        200,
+    );
+    assert!(output.status.success());
+    assert_eq!(String::from_utf8_lossy(&output.stdout), "0.7 -\n");
+    assert_eq!(
+        String::from_utf8_lossy(&output.stderr),
+        "Cost: unavailable (known cost: 0.0000¢; token usage missing for 1 request(s))\n"
+    );
 }
 
 #[test]
@@ -214,7 +238,7 @@ fn phi_launches_all_requests_and_streams_completed_results_before_slower_files()
     let output = child.wait_with_output().unwrap();
     reader.join().unwrap();
     assert!(output.status.success(), "{output:?}");
-    assert!(output.stderr.is_empty());
+    assert_eq!(String::from_utf8_lossy(&output.stderr), "Cost: 0.0126¢\n");
 }
 
 #[test]
@@ -301,7 +325,8 @@ fn code_comments_batch_two_questions_per_span_for_file_directory_and_stdin() {
             assert_eq!(questions.len(), 4);
             let mut answers = serde_json::Map::new();
             for (id, question) in questions {
-                assert_eq!(question["type"], "noul");
+                assert_eq!(question["type"], "score");
+                assert_eq!(question["criteria"].as_array().unwrap().len(), 4);
                 let index = if id.contains("_0_") { 0 } else { 1 };
                 assert!(
                     question["instructions"]
@@ -309,17 +334,20 @@ fn code_comments_batch_two_questions_per_span_for_file_directory_and_stdin() {
                         .unwrap()
                         .contains(&format!("comments[{index}].comment"))
                 );
-                let value = if id.ends_with("accurate") { 0.79 } else { 0.08 };
-                answers.insert(id.clone(), json!({"type": "noul", "noul": value}));
+                let value = if id.ends_with("accurate") { 2.37 } else { 0.24 };
+                answers.insert(
+                    id.clone(),
+                    json!({"type": "score", "score": value, "confidence": 0.9}),
+                );
             }
             request
                 .respond(tiny_http::Response::from_string(
-                    json!({"answers": answers}).to_string(),
+                    json!({"answers": answers, "usage": {"input_tokens": 1000, "output_tokens": 9000}}).to_string(),
                 ))
                 .unwrap();
         });
         let mut command = command();
-        command.args(["code-comment", "--model", "test-model"]);
+        command.args(["code-comments", "--model", "test-model"]);
         match mode {
             "file" => {
                 command.arg(&file);
@@ -349,20 +377,33 @@ fn code_comments_batch_two_questions_per_span_for_file_directory_and_stdin() {
         let output = child.wait_with_output().unwrap();
         worker.join().unwrap();
         assert!(output.status.success(), "{output:?}");
-        assert!(output.stderr.is_empty());
+        assert_eq!(String::from_utf8_lossy(&output.stderr), "Cost: 0.0042¢\n");
         let text = String::from_utf8(output.stdout).unwrap();
         let name = if matches!(mode, "file" | "directory") {
             "example.ts"
         } else {
             "-"
         };
-        assert!(text.starts_with(&format!("{name}:1-2\nAccurate:  ")));
-        assert!(text.contains(&format!("{name}:4-4\n")));
-        assert_eq!(text.matches("79%").count(), 2);
-        assert_eq!(text.matches("8%").count(), 2);
-        assert!(
-            text.contains("// Keep the historical delay.\n// Old clients depend on it.\n\n---")
+        assert!(text.starts_with(&format!("{name}:1-2\nAccuracy:   ")));
+        assert!(text.contains(&format!("{name}:4\n")));
+        assert_eq!(text.matches("79/100").count(), 2);
+        assert_eq!(text.matches("8/100").count(), 2);
+        assert_eq!(
+            text.matches("79/100 · Mostly accurate")
+                .count(),
+            2
         );
+        assert_eq!(
+            text.matches("8/100 · No useful information")
+                .count(),
+            2
+        );
+        assert_eq!(text.matches("Usefulness:").count(), 2);
+        assert!(text.contains("│ // Keep the historical delay. │"));
+        assert!(text.contains("│ // Old clients depend on it.  │"));
+        assert!(text.contains("│ wait(100);"));
+        assert!(text.contains("│ count++;"));
+        assert!(text.contains('╭') && text.contains('╯'));
         assert!(!text.contains('\x1b'));
     }
 }
@@ -373,11 +414,56 @@ fn comment_free_files_need_no_api_key() {
     file.write_all(b"const value = `/* not a comment */`;\n")
         .unwrap();
     let output = command()
-        .arg("code-comment")
+        .arg("code-comments")
         .arg(file.path())
         .output()
         .unwrap();
     assert!(output.status.success(), "{output:?}");
     assert!(output.stdout.is_empty());
-    assert!(output.stderr.is_empty());
+    assert_eq!(String::from_utf8_lossy(&output.stderr), "Cost: 0.0000¢\n");
+}
+
+#[test]
+fn code_comments_reject_invalid_scores_without_partial_output() {
+    for invalid in [
+        json!({"type": "score", "score": -0.1}),
+        json!({"type": "score", "score": 3.01}),
+        json!({"type": "noul", "noul": 0.8}),
+        json!({"type": "score"}),
+    ] {
+        let mut file = tempfile::NamedTempFile::new().unwrap();
+        file.write_all(b"// Increment the counter.\ncount++;\n")
+            .unwrap();
+        let server = tiny_http::Server::http("127.0.0.1:0").unwrap();
+        let endpoint = format!("http://{}/v1/systemone", server.server_addr());
+        let worker = thread::spawn(move || {
+            let request = server
+                .recv_timeout(Duration::from_secs(10))
+                .unwrap()
+                .unwrap();
+            request
+                .respond(tiny_http::Response::from_string(
+                    json!({
+                        "answers": {
+                            "comment_0_accurate": {"type": "score", "score": 3.0},
+                            "comment_0_useful": invalid
+                        },
+                        "usage": {"input_tokens": 1000}
+                    })
+                    .to_string(),
+                ))
+                .unwrap();
+        });
+        let output = command()
+            .arg("code-comments")
+            .arg(file.path())
+            .env("TYPESAFE_API_KEY", "test-key")
+            .env("TYPESAFE_ENDPOINT", endpoint)
+            .output()
+            .unwrap();
+        worker.join().unwrap();
+        assert_eq!(output.status.code(), Some(1));
+        assert!(output.stdout.is_empty());
+        assert!(String::from_utf8_lossy(&output.stderr).ends_with("Cost: 0.0042¢\n"));
+    }
 }

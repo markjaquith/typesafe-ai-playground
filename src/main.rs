@@ -6,11 +6,13 @@ use std::{
 };
 
 use anyhow::{Context, Result, bail, ensure};
-use serde::{Deserialize, Serialize};
+use serde::Deserialize;
 use serde_json::json;
 use usage::{Args, Cli, Subcommands};
 
 mod code_comment;
+mod cost;
+use cost::Cost;
 
 /// Typed AI judgments for text.
 #[derive(Cli)]
@@ -24,8 +26,8 @@ struct Cli {
 enum Commands {
     /// Return the probability that text contains personal health information.
     Phi(Phi),
-    /// Score JS/TS comments for accuracy and necessity.
-    CodeComment(Phi),
+    /// Score JS/TS comments for accuracy and usefulness.
+    CodeComments(Phi),
 }
 
 #[derive(Args)]
@@ -41,20 +43,14 @@ struct Phi {
 
 #[derive(Deserialize)]
 struct Response {
-    answers: std::collections::HashMap<String, Noul>,
+    answers: std::collections::HashMap<String, Answer>,
 }
 
-#[derive(Deserialize, Serialize)]
-struct Noul {
-    #[serde(rename = "type")]
-    kind: NoulType,
-    noul: f64,
-}
-
-#[derive(Deserialize, Serialize)]
-enum NoulType {
-    #[serde(rename = "noul")]
-    Noul,
+#[derive(Deserialize)]
+#[serde(tag = "type", rename_all = "lowercase")]
+enum Answer {
+    Noul { noul: f64 },
+    Score { score: f64 },
 }
 
 fn read_input(file: Option<&std::path::Path>) -> Result<String> {
@@ -77,7 +73,7 @@ fn read_input(file: Option<&std::path::Path>) -> Result<String> {
     Ok(text)
 }
 
-fn evaluate(text: &str, model: &str, endpoint: &str, key: &str) -> Result<Noul> {
+fn evaluate(text: &str, model: &str, endpoint: &str, key: &str, cost: &Cost) -> Result<f64> {
     let body = json!({
         "model": model,
         "state": { "text": text },
@@ -92,16 +88,18 @@ fn evaluate(text: &str, model: &str, endpoint: &str, key: &str) -> Result<Noul> 
             }
         }
     });
-    request(&body, endpoint, key)?
-        .remove("phi")
-        .context("TypeSafe response is missing the phi answer")
+    match request(&body, endpoint, key, cost)?.remove("phi") {
+        Some(Answer::Noul { noul }) => Ok(noul),
+        _ => bail!("TypeSafe response is missing the phi Noul answer"),
+    }
 }
 
 fn request(
     body: &serde_json::Value,
     endpoint: &str,
     key: &str,
-) -> Result<std::collections::HashMap<String, Noul>> {
+    cost: &Cost,
+) -> Result<std::collections::HashMap<String, Answer>> {
     let client = reqwest::blocking::Client::builder()
         .connect_timeout(Duration::from_secs(10))
         .timeout(Duration::from_secs(120))
@@ -114,8 +112,11 @@ fn request(
             .bearer_auth(key)
             .json(&body)
             .send()
+            .inspect_err(|_| cost.record(None))
             .context("TypeSafe request failed")?;
         let status = response.status();
+        let payload = response.json::<serde_json::Value>();
+        cost.record(payload.as_ref().ok());
         if matches!(status.as_u16(), 429 | 529) && attempt < 2 {
             std::thread::sleep(Duration::from_secs(1 << attempt));
             continue;
@@ -129,11 +130,34 @@ fn request(
             };
             bail!("TypeSafe returned HTTP {status}: {hint}");
         }
-        let result: Response = response.json().context("invalid TypeSafe Noul response")?;
-        for answer in result.answers.values() {
+        let result: Response =
+            serde_json::from_value(payload.context("invalid TypeSafe response")?)
+                .context("invalid TypeSafe answer response")?;
+        for (id, answer) in &result.answers {
+            let question = &body["questions"][id];
+            let (value, maximum) = match answer {
+                Answer::Noul { noul } => {
+                    ensure!(
+                        question["type"] == "noul",
+                        "unexpected Noul answer for {id}"
+                    );
+                    (*noul, 1.0)
+                }
+                Answer::Score { score } => {
+                    ensure!(
+                        question["type"] == "score",
+                        "unexpected Score answer for {id}"
+                    );
+                    let levels = question["criteria"]
+                        .as_array()
+                        .context("missing Score criteria")?;
+                    ensure!(levels.len() >= 2, "Score needs at least two levels");
+                    (*score, (levels.len() - 1) as f64)
+                }
+            };
             ensure!(
-                answer.noul.is_finite() && (0.0..=1.0).contains(&answer.noul),
-                "TypeSafe returned a Noul outside the probability range 0..=1"
+                value.is_finite() && (0.0..=maximum).contains(&value),
+                "TypeSafe returned an answer outside the range 0..={maximum} for {id}"
             );
         }
         return Ok(result.answers);
@@ -141,9 +165,9 @@ fn request(
     unreachable!("the final attempt returns a result")
 }
 
-fn run(cli: Cli) -> Result<()> {
+fn run(cli: Cli, cost: &Cost) -> Result<()> {
     match cli.command {
-        Commands::CodeComment(args) => code_comment::run(args)?,
+        Commands::CodeComments(args) => code_comment::run(args, cost)?,
         Commands::Phi(args) => {
             let directory = args.file.as_ref().filter(|path| path.is_dir());
             let mut inputs = Vec::new();
@@ -177,6 +201,7 @@ fn run(cli: Cli) -> Result<()> {
                     || std::env::var("CLICOLOR_FORCE").is_ok_and(|v| !v.is_empty() && v != "0"));
             let mut failed = 0;
             let (sender, receiver) = std::sync::mpsc::channel();
+            let mut output_error = None;
             for input in inputs {
                 let name = input
                     .as_ref()
@@ -199,32 +224,42 @@ fn run(cli: Cli) -> Result<()> {
                 let model = args.model.clone();
                 let endpoint = endpoint.clone();
                 let key = key.clone();
-                std::thread::Builder::new()
+                let cost = cost.clone();
+                let worker = std::thread::Builder::new()
                     .spawn(move || {
                         let result = (|| {
                             let text = match single_text {
                                 Some(text) => text,
                                 None => read_input(input.as_deref())?,
                             };
-                            evaluate(&text, &model, &endpoint, &key)
+                            evaluate(&text, &model, &endpoint, &key, &cost)
                         })();
                         let _ = sender.send((name, result));
                     })
-                    .context("could not start PHI request worker")?;
+                    .context("could not start PHI request worker");
+                if let Err(error) = worker {
+                    output_error = Some(error);
+                    break;
+                }
             }
             drop(sender);
             for (name, result) in receiver {
                 match result {
                     Ok(answer) => {
-                        let value = answer.noul;
-                        let mut stdout = io::stdout().lock();
-                        if color {
-                            let code = if value < 0.2 { 31 } else { 32 };
-                            writeln!(stdout, "\x1b[1;{code}m{value}\x1b[0m {name}")?;
-                        } else {
-                            writeln!(stdout, "{value} {name}")?;
+                        if output_error.is_some() {
+                            continue;
                         }
-                        stdout.flush()?;
+                        let value = answer;
+                        let mut stdout = io::stdout().lock();
+                        let written = if color {
+                            let code = if value < 0.2 { 31 } else { 32 };
+                            writeln!(stdout, "\x1b[1;{code}m{value}\x1b[0m {name}")
+                        } else {
+                            writeln!(stdout, "{value} {name}")
+                        };
+                        if let Err(error) = written.and_then(|_| stdout.flush()) {
+                            output_error = Some(error.into());
+                        }
                     }
                     Err(error) if directory.is_some() => {
                         eprintln!("error: {name}: {error:#}");
@@ -233,6 +268,9 @@ fn run(cli: Cli) -> Result<()> {
                     Err(error) => return Err(error),
                 }
             }
+            if let Some(error) = output_error {
+                return Err(error);
+            }
             ensure!(failed == 0, "failed to score {failed} file(s)");
         }
     }
@@ -240,17 +278,22 @@ fn run(cli: Cli) -> Result<()> {
 }
 
 fn main() -> ExitCode {
-    match run(Cli::parse()) {
+    let cli = Cli::parse();
+    let cost = Cost::default();
+    let exit = match run(cli, &cost) {
         Ok(()) => ExitCode::SUCCESS,
         Err(error) => {
             if error
                 .downcast_ref::<io::Error>()
                 .is_some_and(|error| error.kind() == io::ErrorKind::BrokenPipe)
             {
-                return ExitCode::SUCCESS;
+                ExitCode::SUCCESS
+            } else {
+                eprintln!("error: {error:#}");
+                ExitCode::FAILURE
             }
-            eprintln!("error: {error:#}");
-            ExitCode::FAILURE
         }
-    }
+    };
+    eprintln!("{}", cost.summary());
+    exit
 }
