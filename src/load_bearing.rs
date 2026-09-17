@@ -16,7 +16,10 @@ use syntect::{
 };
 use usage::Args;
 
-use crate::{Answer, cost::Cost};
+use crate::{
+    cost::Cost,
+    typesafe::{Answer, Client},
+};
 
 #[derive(Args)]
 #[usage(unknown_flags = "error")]
@@ -121,11 +124,7 @@ fn score_file(path: &std::path::Path, model: &str, cost: &Cost) -> Result<Record
     let questions = questions(&source, path)?;
     let mut score = BTreeMap::new();
     if !questions.is_empty() {
-        let key = std::env::var("TYPESAFE_API_KEY")
-            .context("set TYPESAFE_API_KEY to your TypeSafe API key")?;
-        ensure!(!key.trim().is_empty(), "TYPESAFE_API_KEY is empty");
-        let endpoint = std::env::var("TYPESAFE_ENDPOINT")
-            .unwrap_or_else(|_| "https://api.typesafe.ai/v1/systemone".into());
+        let client = Client::from_env()?;
         let operations = enclosing_operations(&source, path)?;
         let mut contextual_questions = questions.clone();
         for (line, question) in &mut contextual_questions {
@@ -139,7 +138,7 @@ fn score_file(path: &std::path::Path, model: &str, cost: &Cost) -> Result<Record
             }
         }
         let body = json!({"model": model, "state": {"file": file, "source": source, "enclosing_operations": operations}, "questions": contextual_questions});
-        let mut answers = crate::request(&body, &endpoint, &key, cost)?;
+        let mut answers = client.request(&body, cost)?;
         for id in questions.keys() {
             let Some(Answer::Score { score: value }) = answers.remove(id) else {
                 anyhow::bail!("TypeSafe response is missing Score for line {id}");

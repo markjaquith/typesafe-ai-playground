@@ -4,7 +4,7 @@ use anyhow::{Context, Result, ensure};
 use serde::Deserialize;
 use serde_json::{Map, Value, json};
 
-use crate::Answer;
+use crate::typesafe::Answer;
 
 const MAX_CODES: usize = 253; // Leave room for both fallback options.
 const UNKNOWN: &str = "insufficient_information";

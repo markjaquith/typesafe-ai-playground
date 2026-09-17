@@ -2,11 +2,9 @@ use std::{
     io::{self, IsTerminal, Read, Write},
     path::PathBuf,
     process::ExitCode,
-    time::Duration,
 };
 
 use anyhow::{Context, Result, bail, ensure};
-use serde::Deserialize;
 use serde_json::json;
 use usage::{Args, Cli, Subcommands};
 
@@ -15,7 +13,9 @@ mod classification;
 mod code_comment;
 mod cost;
 mod load_bearing;
+mod typesafe;
 use cost::Cost;
+use typesafe::{Answer, Client};
 
 /// Typed AI judgments for text.
 #[derive(Cli)]
@@ -54,27 +54,6 @@ struct Phi {
     model: String,
 }
 
-#[derive(Deserialize)]
-struct Response {
-    answers: std::collections::HashMap<String, Answer>,
-}
-
-#[derive(Deserialize)]
-#[serde(tag = "type", rename_all = "lowercase")]
-enum Answer {
-    Noul {
-        noul: f64,
-    },
-    Score {
-        score: f64,
-    },
-    Choice {
-        choice: String,
-        probabilities: std::collections::HashMap<String, f64>,
-        confidence: f64,
-    },
-}
-
 fn read_input(file: Option<&std::path::Path>) -> Result<String> {
     let text = match file {
         Some(path) if path != std::path::Path::new("-") => std::fs::read_to_string(path)
@@ -95,7 +74,7 @@ fn read_input(file: Option<&std::path::Path>) -> Result<String> {
     Ok(text)
 }
 
-fn evaluate(text: &str, model: &str, endpoint: &str, key: &str, cost: &Cost) -> Result<f64> {
+fn evaluate(text: &str, model: &str, client: &Client, cost: &Cost) -> Result<f64> {
     let body = json!({
         "model": model,
         "state": { "text": text },
@@ -110,120 +89,10 @@ fn evaluate(text: &str, model: &str, endpoint: &str, key: &str, cost: &Cost) -> 
             }
         }
     });
-    match request(&body, endpoint, key, cost)?.remove("phi") {
+    match client.request(&body, cost)?.remove("phi") {
         Some(Answer::Noul { noul }) => Ok(noul),
         _ => bail!("TypeSafe response is missing the phi Noul answer"),
     }
-}
-
-fn request(
-    body: &serde_json::Value,
-    endpoint: &str,
-    key: &str,
-    cost: &Cost,
-) -> Result<std::collections::HashMap<String, Answer>> {
-    let client = reqwest::blocking::Client::builder()
-        .connect_timeout(Duration::from_secs(10))
-        .timeout(Duration::from_secs(120))
-        .redirect(reqwest::redirect::Policy::none())
-        .build()
-        .context("could not create HTTP client")?;
-    for attempt in 0..3 {
-        let response = client
-            .post(endpoint)
-            .bearer_auth(key)
-            .json(&body)
-            .send()
-            .inspect_err(|_| cost.record(None))
-            .context("TypeSafe request failed")?;
-        let status = response.status();
-        let payload = response.json::<serde_json::Value>();
-        cost.record(payload.as_ref().ok());
-        if matches!(status.as_u16(), 429 | 529) && attempt < 2 {
-            std::thread::sleep(Duration::from_secs(1 << attempt));
-            continue;
-        }
-        if !status.is_success() {
-            let hint = match status.as_u16() {
-                401 | 403 => "check TYPESAFE_API_KEY",
-                422 => "check the model and input size against the API limits",
-                429 | 529 => "service busy; try again later",
-                _ => "request was unsuccessful",
-            };
-            bail!("TypeSafe returned HTTP {status}: {hint}");
-        }
-        let result: Response =
-            serde_json::from_value(payload.context("invalid TypeSafe response")?)
-                .context("invalid TypeSafe answer response")?;
-        for (id, answer) in &result.answers {
-            let question = &body["questions"][id];
-            let (value, maximum) = match answer {
-                Answer::Choice {
-                    choice,
-                    probabilities,
-                    confidence,
-                } => {
-                    ensure!(
-                        question["type"] == "choice",
-                        "unexpected Choice answer for {id}"
-                    );
-                    let options = question["criteria"]
-                        .as_object()
-                        .context("missing Choice criteria")?;
-                    ensure!(
-                        options.contains_key(choice),
-                        "unknown Choice option for {id}"
-                    );
-                    ensure!(
-                        probabilities.len() == options.len()
-                            && probabilities.keys().all(|key| options.contains_key(key)),
-                        "Choice probabilities do not match options for {id}"
-                    );
-                    ensure!(
-                        probabilities
-                            .values()
-                            .all(|p| p.is_finite() && (0.0..=1.0).contains(p)),
-                        "invalid Choice probabilities for {id}"
-                    );
-                    ensure!(
-                        (probabilities.values().sum::<f64>() - 1.0).abs() < 0.02,
-                        "Choice probabilities do not sum to one for {id}"
-                    );
-                    ensure!(
-                        probabilities
-                            .values()
-                            .all(|p| *p <= probabilities[choice] + 1e-6),
-                        "Choice winner does not match probabilities for {id}"
-                    );
-                    (*confidence, 1.0)
-                }
-                Answer::Noul { noul } => {
-                    ensure!(
-                        question["type"] == "noul",
-                        "unexpected Noul answer for {id}"
-                    );
-                    (*noul, 1.0)
-                }
-                Answer::Score { score } => {
-                    ensure!(
-                        question["type"] == "score",
-                        "unexpected Score answer for {id}"
-                    );
-                    let levels = question["criteria"]
-                        .as_array()
-                        .context("missing Score criteria")?;
-                    ensure!(levels.len() >= 2, "Score needs at least two levels");
-                    (*score, (levels.len() - 1) as f64)
-                }
-            };
-            ensure!(
-                value.is_finite() && (0.0..=maximum).contains(&value),
-                "TypeSafe returned an answer outside the range 0..={maximum} for {id}"
-            );
-        }
-        return Ok(result.answers);
-    }
-    unreachable!("the final attempt returns a result")
 }
 
 fn run(cli: Cli, cost: &Cost) -> Result<()> {
@@ -257,11 +126,7 @@ fn run(cli: Cli, cost: &Cost) -> Result<()> {
             } else {
                 None
             };
-            let key = std::env::var("TYPESAFE_API_KEY")
-                .context("set TYPESAFE_API_KEY to your TypeSafe API key")?;
-            ensure!(!key.trim().is_empty(), "TYPESAFE_API_KEY is empty");
-            let endpoint = std::env::var("TYPESAFE_ENDPOINT")
-                .unwrap_or_else(|_| "https://api.typesafe.ai/v1/systemone".into());
+            let client = Client::from_env()?;
             let color = std::env::var_os("NO_COLOR").is_none()
                 && (io::stdout().is_terminal()
                     || std::env::var("CLICOLOR_FORCE").is_ok_and(|v| !v.is_empty() && v != "0"));
@@ -288,8 +153,7 @@ fn run(cli: Cli, cost: &Cost) -> Result<()> {
                 let sender = sender.clone();
                 let single_text = single_text.clone();
                 let model = args.model.clone();
-                let endpoint = endpoint.clone();
-                let key = key.clone();
+                let client = client.clone();
                 let cost = cost.clone();
                 let worker = std::thread::Builder::new()
                     .spawn(move || {
@@ -298,7 +162,7 @@ fn run(cli: Cli, cost: &Cost) -> Result<()> {
                                 Some(text) => text,
                                 None => read_input(input.as_deref())?,
                             };
-                            evaluate(&text, &model, &endpoint, &key, &cost)
+                            evaluate(&text, &model, &client, &cost)
                         })();
                         let _ = sender.send((name, result));
                     })
@@ -362,55 +226,4 @@ fn main() -> ExitCode {
     };
     eprintln!("{}", cost.summary());
     exit
-}
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    #[test]
-    fn choice_response_cannot_invent_codes_or_probabilities() {
-        for (answer, valid) in [
-            (
-                json!({"type": "choice", "choice": "known", "probabilities": {"known": 0.9, "other": 0.1}, "confidence": 0.8}),
-                true,
-            ),
-            (
-                json!({"type": "choice", "choice": "invented", "probabilities": {"known": 0.9, "other": 0.1}, "confidence": 0.8}),
-                false,
-            ),
-            (
-                json!({"type": "choice", "choice": "known", "probabilities": {"known": 1.0, "invented": 0.0}, "confidence": 0.8}),
-                false,
-            ),
-            (
-                json!({"type": "choice", "choice": "known", "probabilities": {"known": 1.2, "other": -0.2}, "confidence": 0.8}),
-                false,
-            ),
-            (
-                json!({"type": "choice", "choice": "known", "probabilities": {"known": 0.1, "other": 0.1}, "confidence": 0.8}),
-                false,
-            ),
-        ] {
-            let server = tiny_http::Server::http("127.0.0.1:0").unwrap();
-            let endpoint = format!("http://{}/v1/systemone", server.server_addr());
-            let worker = std::thread::spawn(move || {
-                let request = server
-                    .recv_timeout(Duration::from_secs(5))
-                    .unwrap()
-                    .unwrap();
-                request.respond(tiny_http::Response::from_string(json!({"answers": {"classification": answer}, "usage": {"input_tokens": 1000}}).to_string())).unwrap();
-            });
-            let cost = Cost::default();
-            let result = request(
-                &json!({"questions": {"classification": {"type": "choice", "criteria": {"known": "Known", "other": "Other"}}}}),
-                &endpoint,
-                "mock",
-                &cost,
-            );
-            assert_eq!(result.is_ok(), valid);
-            assert_eq!(cost.summary(), "Cost: 0.0042¢");
-            worker.join().unwrap();
-        }
-    }
 }

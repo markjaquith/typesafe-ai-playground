@@ -8,7 +8,10 @@ use serde_json::json;
 use tree_sitter_highlight::{HighlightConfiguration, HighlightEvent, Highlighter};
 use unicode_width::UnicodeWidthStr;
 
-use crate::{Answer, Cost, Phi, read_input, request};
+use crate::{
+    Cost, Phi, read_input,
+    typesafe::{Answer, Client},
+};
 
 const ACCURACY_LEVELS: [&str; 4] = [
     "Contradicts the code or fundamentally misdescribes its behavior.",
@@ -276,11 +279,7 @@ fn score_file(
         return Ok(());
     }
     let highlighting = color.then(|| highlight_config(tsx)).transpose()?;
-    let key = std::env::var("TYPESAFE_API_KEY")
-        .context("set TYPESAFE_API_KEY to your TypeSafe API key")?;
-    ensure!(!key.trim().is_empty(), "TYPESAFE_API_KEY is empty");
-    let endpoint = std::env::var("TYPESAFE_ENDPOINT")
-        .unwrap_or_else(|_| "https://api.typesafe.ai/v1/systemone".into());
+    let client = Client::from_env()?;
     let mut questions = serde_json::Map::new();
     let mut targets = Vec::new();
     for (index, comment) in comments.iter().enumerate() {
@@ -309,14 +308,12 @@ fn score_file(
             }));
         }
     }
-    let answers = request(
+    let answers = client.request(
         &json!({
             "model": model,
             "state": { "source": text, "comments": targets },
             "questions": questions
         }),
-        &endpoint,
-        &key,
         cost,
     )?;
     // Validate all expected answers before emitting a partial file report.

@@ -27,9 +27,9 @@ use serde_json::json;
 use unicode_width::{UnicodeWidthChar, UnicodeWidthStr};
 
 use crate::{
-    Answer, Cost,
+    Cost,
     classification::{self, Catalog, Classification},
-    request,
+    typesafe::{Answer, Client},
 };
 
 #[derive(Clone, Copy)]
@@ -408,11 +408,7 @@ pub(super) fn run_mode(options: Options, cost: &Cost, mode: Mode) -> Result<()> 
         io::stdin().is_terminal() && io::stdout().is_terminal(),
         "this command requires an interactive terminal"
     );
-    let key = std::env::var("TYPESAFE_API_KEY")
-        .context("set TYPESAFE_API_KEY to your TypeSafe API key")?;
-    ensure!(!key.trim().is_empty(), "TYPESAFE_API_KEY is empty");
-    let endpoint = std::env::var("TYPESAFE_ENDPOINT")
-        .unwrap_or_else(|_| "https://api.typesafe.ai/v1/systemone".into());
+    let client = Client::from_env()?;
     let catalog = match mode {
         Mode::Tone => None,
         Mode::Business => Some(Arc::new(classification::load(true)?)),
@@ -489,8 +485,7 @@ pub(super) fn run_mode(options: Options, cost: &Cost, mode: Mode) -> Result<()> 
                     }}
                 });
                 let sender = sender.clone();
-                let endpoint = endpoint.clone();
-                let key = key.clone();
+                let client = client.clone();
                 let catalog = catalog.clone();
                 let current_revision = current_revision.clone();
                 let model = options.model.clone();
@@ -508,12 +503,12 @@ pub(super) fn run_mode(options: Options, cost: &Cost, mode: Mode) -> Result<()> 
                                         current_revision.load(Ordering::Relaxed) == revision,
                                         "superseded classification"
                                     );
-                                    request(body, &endpoint, &key, &usage)
+                                    client.request(body, &usage)
                                 },
                             )
                             .map(LiveResult::Classification)
                         } else {
-                            request(&body, &endpoint, &key, &usage).and_then(|mut answers| {
+                            client.request(&body, &usage).and_then(|mut answers| {
                                 match answers.remove("tone") {
                                     Some(Answer::Score { score }) => Ok(LiveResult::Tone(score)),
                                     _ => anyhow::bail!("missing tone Score answer"),
