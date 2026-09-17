@@ -1,0 +1,22 @@
+<!doctype html>
+<html lang="en">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Load-bearing · source heat map</title>
+<style>
+:root{color-scheme:dark;font-family:system-ui,sans-serif;background:#0b1017;color:#dce6ed}
+*{box-sizing:border-box}body{margin:0}header{padding:32px 36px;border-bottom:1px solid #24313c;background:#101923}h1{font-size:30px;letter-spacing:-1px;margin:6px 0 12px}.eyebrow{color:#81e9ca;font-size:11px;letter-spacing:3px;text-transform:uppercase}header p{color:#9cabb9;max-width:760px;line-height:1.6}.controls{display:flex;align-items:center;gap:24px;flex-wrap:wrap;font-size:13px}.legend{display:flex;align-items:center;gap:10px;color:#a4b2c0}.ramp{width:130px;height:6px;background:linear-gradient(90deg,#28313a,#26877d,#b7ffe3);border-radius:8px}input{accent-color:#85f4d2}label{cursor:pointer}input:focus-visible,a:focus-visible{outline:2px solid #85f4d2;outline-offset:4px}.layout{display:grid;grid-template-columns:240px minmax(0,1fr)}nav{padding:24px 16px;position:sticky;top:0;height:100vh;overflow:auto;border-right:1px solid #24313c}nav a{display:block;color:#b8c8d4;text-decoration:none;padding:12px;border-radius:6px;overflow-wrap:anywhere}nav a:hover{background:#182732;color:#b7ffe3}small{display:block;color:#708797;margin-top:5px;font-size:11px}main{padding:28px;min-width:0}section{margin-bottom:42px;scroll-margin-top:20px}h2{font-size:17px;font-weight:550;overflow-wrap:anywhere}.meta{font-size:12px;color:#7c94a6}.code{overflow-x:auto;background:#0d141d;border:1px solid #23313e;border-radius:9px;padding:16px 0}.line{display:flex;min-width:max-content;line-height:1.65;background:rgb(88 238 186 / calc(var(--heat)*.12));box-shadow:inset 3px 0 rgb(133 255 213 / var(--heat))}.line code{display:block;white-space:pre;tab-size:4;padding-right:22px;font-family:ui-monospace,SFMono-Regular,Consolas,monospace;font-size:13px;opacity:var(--light);text-shadow:0 0 var(--glow) #8affdf}.number,.rating{flex-shrink:0;text-align:right;font:11px/21.45px ui-monospace,monospace}.number{width:54px;color:#718598;text-decoration:none;padding-right:16px}.rating{width:38px;margin-right:20px;color:#8ce9c9;opacity:var(--light)}.line:hover,.line:target{background:#223543}.line:hover code,.line:target code{opacity:1}.plain .line{background:none;box-shadow:none}.plain .line code,.plain .rating{opacity:1;text-shadow:none}@media(max-width:760px){header{padding:24px}.layout{display:block}nav{position:static;height:auto;max-height:180px;border-bottom:1px solid #24313c}main{padding:16px}.controls{gap:16px}}
+.line code {
+  text-shadow: none;
+  filter: blur(clamp(0px, calc((0.3 - var(--heat)) * 4px), 1.2px));
+}
+.line:hover code,
+.line:target code,
+.plain .line code {
+  filter: none;
+}
+</style>
+<header><div class="eyebrow">TypeSafe / source intelligence</div><h1>Load-bearing</h1><p>The lines carrying the weight. Important lines stay bright and sharp; supporting details soften into the background.</p><div class="controls"><label><input id="overlay" type="checkbox" checked> Heat map</label><div class="legend">Incidental <span class="ramp"></span> Foundational</div><span class="legend">Hover a line to bring into focus</span></div></header>
+<div class="layout"><nav aria-label="Files"><!--NAV--></nav><main><!--CONTENT--></main></div>
+<script>document.getElementById('overlay').addEventListener('change',event=>document.body.classList.toggle('plain',!event.target.checked));</script>
+</html>

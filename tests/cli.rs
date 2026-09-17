@@ -18,6 +18,79 @@ fn command() -> Command {
     command
 }
 
+#[test]
+fn load_bearing_batches_lines_and_launches_files_concurrently() {
+    let directory = tempfile::tempdir().unwrap();
+    let source = "abc\r\n}\r\nconst value = 1;\r\nreturn value;\r\n";
+    for name in ["a.ts", "b.ts"] {
+        std::fs::write(directory.path().join(name), source).unwrap();
+    }
+    let server = tiny_http::Server::http("127.0.0.1:0").unwrap();
+    let endpoint = format!("http://{}", server.server_addr());
+    let worker = thread::spawn(move || {
+        // Both requests must arrive before either receives a response.
+        let mut requests = Vec::new();
+        for _ in 0..2 {
+            let mut request = server
+                .recv_timeout(Duration::from_secs(10))
+                .unwrap()
+                .expect("concurrent request");
+            let body: Value = serde_json::from_reader(request.as_reader()).unwrap();
+            assert_eq!(body["state"]["source"], source);
+            assert_eq!(body["questions"].as_object().unwrap().len(), 2);
+            for line in ["3", "4"] {
+                assert_eq!(body["questions"][line]["type"], "score");
+                assert!(
+                    body["questions"][line]["instructions"]
+                        .as_str()
+                        .unwrap()
+                        .contains(&format!("line {line}"))
+                );
+            }
+            requests.push(request);
+        }
+        for request in requests {
+            request.respond(tiny_http::Response::from_string(json!({"answers": {"3": {"type": "score", "score": 4}, "4": {"type": "score", "score": 2}}, "usage": {"input_tokens": 1000}}).to_string())).unwrap();
+        }
+    });
+    let output = command()
+        .arg("load-bearing")
+        .arg(directory.path())
+        .env("TYPESAFE_API_KEY", "test-key")
+        .env("TYPESAFE_ENDPOINT", endpoint)
+        .output()
+        .unwrap();
+    worker.join().unwrap();
+    assert!(output.status.success(), "{:?}", output);
+    let records: Vec<Value> = String::from_utf8(output.stdout)
+        .unwrap()
+        .lines()
+        .map(|line| serde_json::from_str(line).unwrap())
+        .collect();
+    assert_eq!(records.len(), 2);
+    assert_ne!(records[0]["file"], records[1]["file"]);
+    for record in records {
+        assert_eq!(record["source"], source);
+        assert_eq!(record["score"], json!({"3": 1.0, "4": 0.5}));
+    }
+    assert_eq!(String::from_utf8_lossy(&output.stderr), "Cost: 0.0084¢\n");
+}
+
+#[test]
+fn load_bearing_skips_short_lines_without_credentials() {
+    let file = tempfile::NamedTempFile::new().unwrap();
+    std::fs::write(file.path(), "abc\n}\néééé\n").unwrap();
+    let output = command()
+        .arg("load-bearing")
+        .arg(file.path())
+        .output()
+        .unwrap();
+    assert!(output.status.success(), "{:?}", output);
+    let record: Value = serde_json::from_slice(&output.stdout).unwrap();
+    assert_eq!(record["score"], json!({}));
+    assert_eq!(String::from_utf8_lossy(&output.stderr), "Cost: 0.0000¢\n");
+}
+
 fn score(args: &[&str], text: &str, response: Value, status: u16) -> Output {
     let server = tiny_http::Server::http("127.0.0.1:0").unwrap();
     let endpoint = format!("http://{}/v1/systemone", server.server_addr());

@@ -14,6 +14,7 @@ mod be_nice;
 mod classification;
 mod code_comment;
 mod cost;
+mod load_bearing;
 use cost::Cost;
 
 /// Typed AI judgments for text.
@@ -30,6 +31,10 @@ enum Commands {
     Phi(Phi),
     /// Score JS/TS comments for accuracy and usefulness.
     CodeComments(Phi),
+    /// Score each substantive line's importance; emit JSONL source snapshots.
+    LoadBearing(load_bearing::Options),
+    /// Serve a syntax-highlighted load-bearing heat map from JSONL.
+    LoadBearingServe(load_bearing::ServeOptions),
     /// Interactively score text from nice to mean as you type.
     BeNice(be_nice::Options),
     /// Find an IRS business activity code; press Enter to submit.
@@ -227,6 +232,8 @@ fn run(cli: Cli, cost: &Cost) -> Result<()> {
         Commands::Business(args) => be_nice::run_mode(args, cost, be_nice::Mode::Business)?,
         Commands::Job(args) => be_nice::run_mode(args, cost, be_nice::Mode::Job)?,
         Commands::CodeComments(args) => code_comment::run(args, cost)?,
+        Commands::LoadBearing(args) => load_bearing::run(args, cost)?,
+        Commands::LoadBearingServe(args) => load_bearing::serve(args)?,
         Commands::Phi(args) => {
             let directory = args.file.as_ref().filter(|path| path.is_dir());
             let mut inputs = Vec::new();

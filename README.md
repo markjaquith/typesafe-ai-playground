@@ -122,6 +122,72 @@ Historical claims are evaluated against available source context, rather than
 external history. Source is sent in full without truncation, so it must fit the
 selected model's request limits.
 
+## Load-bearing source heat map
+
+```sh
+typesafe-ai load-bearing example.ts > scores.jsonl
+typesafe-ai load-bearing ./src --model jev-latest > scores.jsonl
+typesafe-ai load-bearing-serve scores.jsonl
+# Or pipe directly (the viewer starts after scoring reaches EOF):
+typesafe-ai load-bearing ./src | typesafe-ai load-bearing-serve
+```
+
+Open **http://127.0.0.1:8230**. The viewer renders complete files with offline,
+server-side syntax highlighting (including Rust, JS/TS/TSX, Python, HTML, JSON,
+and Markdown; unknown formats fall back to plain text). Important lines stay sharp
+and bright with mint-green backgrounds; incidental lines are dim and increasingly
+blurred only below a score of 0.30, reaching 1.2px blur at zero. Lines scoring
+0.30 or higher remain sharp. Hover to brighten and sharpen any line,
+toggle the heat map to read normally, and use the file navigation or line links.
+The gutter displays line numbers only. Stop the server with Ctrl-C.
+
+Scoring rates each line's direct contribution to distinctive runtime behavior.
+Type-only interfaces, aliases, annotations, and declaration-only signatures belong
+at zero; naming an important operation does not inherit its implementation's
+importance. Mixed code/type lines are judged on their executable content.
+Lines are judged through the purpose of their enclosing operation: diagnostic
+logging arguments remain instrumentation even when they reference important
+business data. Durable audit records and behavior-driving events are distinguished
+by their role, not their method names. For JS/TS files, Tree-sitter supplies the
+enclosing statement explicitly alongside the full source. All scores remain model
+judgments; logging scores are not clamped or overridden.
+
+Scoring emits one JSON object per file, flushed in completion order:
+
+```json
+{"file":"src/example.ts","source":"const value = compute();\n}\n","score":{"1":0.85}}
+```
+
+`score` keys are **1-based physical line numbers** and values are **0–1 importance
+ratings**, not probabilities. Omitted lines count as zero. Lines with fewer than
+four ASCII letters (`a-zA-Z`) outside comments are skipped. Syntax-aware comment
+detection omits comment-only lines, including multiline comments, while keeping
+code with trailing comments and comment-like text inside strings. Unknown file
+types are treated as plain text. Comments remain in the full-file context and
+viewer. Files with no eligible lines need no
+API call. Empty files yield an empty score map. Source snapshots preserve the exact
+text that was evaluated, even if the files later change.
+
+Each eligible line gets its own Score question in a single batched request per
+file, sharing the full file as context. Questions run independently in parallel;
+all file requests launch concurrently. The five-level rubric runs from no runtime
+contribution through routine plumbing and supporting operations to key runtime
+decisions and defining operations or invariants.
+Scores are divided by four to normalize them. Mere syntax breakage on deletion
+does not make a line semantically important. Full files are never truncated and
+must fit the model's request limits.
+
+Directory behavior matches `phi`: immediate regular files (including hidden
+files), no recursive traversal or symlink following. UTF-8/binary and API failures
+are reported on stderr, other files continue, and any failure causes a nonzero
+exit. Cost reporting stays on stderr so stdout remains valid JSONL.
+
+The server also accepts minimal records like
+`{"file":"src/example.ts","score":{"1":0.85}}`, reading their files relative to
+`--root .`. With snapshots it needs no access to the original files or API key.
+Use `--bind 127.0.0.1:9000` to change the listen address. JSONL is loaded once at
+startup; restart to load new results.
+
 ## Live tone analysis
 
 ```sh
