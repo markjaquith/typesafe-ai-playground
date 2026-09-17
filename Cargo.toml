@@ -3,6 +3,7 @@ name = "typesafe-ai"
 version = "0.1.0"
 edition = "2024"
 description = "Score text for personal health information with TypeSafe AI"
+license = "MIT"
 
 [dependencies]
 anyhow = "1"
