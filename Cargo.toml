@@ -18,5 +18,6 @@ crossterm = "0.28"
 ratatui = "0.29"
 
 [dev-dependencies]
+scraper = "0.24"
 tempfile = "3"
 tiny_http = "0.12"

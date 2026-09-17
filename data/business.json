@@ -1,0 +1,1830 @@
+{
+  "entries": [
+    {
+      "code": "112900",
+      "description": "",
+      "group": "Agriculture, Forestry, Hunting, & Fishing",
+      "title": "Animal production (including breeding of cats and dogs)"
+    },
+    {
+      "code": "113000",
+      "description": "",
+      "group": "Agriculture, Forestry, Hunting, & Fishing",
+      "title": "Forestry & logging (including forest nurseries & timber tracts)"
+    },
+    {
+      "code": "114110",
+      "description": "",
+      "group": "Agriculture, Forestry, Hunting, & Fishing",
+      "title": "Fishing"
+    },
+    {
+      "code": "114210",
+      "description": "",
+      "group": "Agriculture, Forestry, Hunting, & Fishing",
+      "title": "Hunting & trapping"
+    },
+    {
+      "code": "115110",
+      "description": "",
+      "group": "Agriculture, Forestry, Hunting, & Fishing",
+      "title": "Support activities for crop production (including cotton ginning, soil preparation, planting, & cultivating)"
+    },
+    {
+      "code": "115210",
+      "description": "",
+      "group": "Agriculture, Forestry, Hunting, & Fishing",
+      "title": "Support activities for animal production (including farriers)"
+    },
+    {
+      "code": "115310",
+      "description": "",
+      "group": "Agriculture, Forestry, Hunting, & Fishing",
+      "title": "Support activities for forestry"
+    },
+    {
+      "code": "211120",
+      "description": "",
+      "group": "Mining",
+      "title": "Crude petroleum extraction"
+    },
+    {
+      "code": "211130",
+      "description": "",
+      "group": "Mining",
+      "title": "Natural gas extraction"
+    },
+    {
+      "code": "212110",
+      "description": "",
+      "group": "Mining",
+      "title": "Coal mining"
+    },
+    {
+      "code": "212200",
+      "description": "",
+      "group": "Mining",
+      "title": "Metal ore mining"
+    },
+    {
+      "code": "212300",
+      "description": "",
+      "group": "Mining",
+      "title": "Nonmetallic mineral mining & quarrying"
+    },
+    {
+      "code": "213110",
+      "description": "",
+      "group": "Mining",
+      "title": "Support activities for mining"
+    },
+    {
+      "code": "221000",
+      "description": "",
+      "group": "Utilities",
+      "title": "Utilities"
+    },
+    {
+      "code": "236100",
+      "description": "",
+      "group": "Construction of Buildings",
+      "title": "Residential building construction"
+    },
+    {
+      "code": "236200",
+      "description": "",
+      "group": "Construction of Buildings",
+      "title": "Nonresidential building construction"
+    },
+    {
+      "code": "237100",
+      "description": "",
+      "group": "Construction of Buildings",
+      "title": "Utility system construction"
+    },
+    {
+      "code": "237210",
+      "description": "",
+      "group": "Construction of Buildings",
+      "title": "Land subdivision"
+    },
+    {
+      "code": "237310",
+      "description": "",
+      "group": "Construction of Buildings",
+      "title": "Highway, street, & bridge construction"
+    },
+    {
+      "code": "237990",
+      "description": "",
+      "group": "Construction of Buildings",
+      "title": "Other heavy & civil engineering construction"
+    },
+    {
+      "code": "238110",
+      "description": "",
+      "group": "Construction of Buildings",
+      "title": "Poured concrete foundation & structure contractors"
+    },
+    {
+      "code": "238120",
+      "description": "",
+      "group": "Construction of Buildings",
+      "title": "Structural steel & precast concrete construction contractors"
+    },
+    {
+      "code": "238130",
+      "description": "",
+      "group": "Construction of Buildings",
+      "title": "Framing carpentry contractors"
+    },
+    {
+      "code": "238140",
+      "description": "",
+      "group": "Construction of Buildings",
+      "title": "Masonry contractors"
+    },
+    {
+      "code": "238150",
+      "description": "",
+      "group": "Construction of Buildings",
+      "title": "Glass & glazing contractors"
+    },
+    {
+      "code": "238160",
+      "description": "",
+      "group": "Construction of Buildings",
+      "title": "Roofing contractors"
+    },
+    {
+      "code": "238170",
+      "description": "",
+      "group": "Construction of Buildings",
+      "title": "Siding contractors"
+    },
+    {
+      "code": "238190",
+      "description": "",
+      "group": "Construction of Buildings",
+      "title": "Other foundation, structure, & building exterior contractors"
+    },
+    {
+      "code": "238210",
+      "description": "",
+      "group": "Construction of Buildings",
+      "title": "Electrical contractors"
+    },
+    {
+      "code": "238220",
+      "description": "",
+      "group": "Construction of Buildings",
+      "title": "Plumbing, heating, & air-conditioning contractors"
+    },
+    {
+      "code": "238290",
+      "description": "",
+      "group": "Construction of Buildings",
+      "title": "Other building equipment contractors"
+    },
+    {
+      "code": "238310",
+      "description": "",
+      "group": "Construction of Buildings",
+      "title": "Drywall & insulation contractors"
+    },
+    {
+      "code": "238320",
+      "description": "",
+      "group": "Construction of Buildings",
+      "title": "Painting & wall covering contractors"
+    },
+    {
+      "code": "238330",
+      "description": "",
+      "group": "Construction of Buildings",
+      "title": "Flooring contractors"
+    },
+    {
+      "code": "238340",
+      "description": "",
+      "group": "Construction of Buildings",
+      "title": "Tile & terrazzo contractors"
+    },
+    {
+      "code": "238350",
+      "description": "",
+      "group": "Construction of Buildings",
+      "title": "Finish carpentry contractors"
+    },
+    {
+      "code": "238390",
+      "description": "",
+      "group": "Construction of Buildings",
+      "title": "Other building finishing contractors"
+    },
+    {
+      "code": "238910",
+      "description": "",
+      "group": "Construction of Buildings",
+      "title": "Site preparation contractors"
+    },
+    {
+      "code": "238990",
+      "description": "",
+      "group": "Construction of Buildings",
+      "title": "All other specialty trade contractors"
+    },
+    {
+      "code": "311110",
+      "description": "",
+      "group": "Manufacturing",
+      "title": "Animal food mfg."
+    },
+    {
+      "code": "311200",
+      "description": "",
+      "group": "Manufacturing",
+      "title": "Grain & oilseed milling"
+    },
+    {
+      "code": "311300",
+      "description": "",
+      "group": "Manufacturing",
+      "title": "Sugar & confectionery product mfg."
+    },
+    {
+      "code": "311400",
+      "description": "",
+      "group": "Manufacturing",
+      "title": "Fruit & vegetable preserving & speciality food mfg."
+    },
+    {
+      "code": "311500",
+      "description": "",
+      "group": "Manufacturing",
+      "title": "Dairy product mfg."
+    },
+    {
+      "code": "311610",
+      "description": "",
+      "group": "Manufacturing",
+      "title": "Animal slaughtering & processing"
+    },
+    {
+      "code": "311710",
+      "description": "",
+      "group": "Manufacturing",
+      "title": "Seafood product preparation & packaging"
+    },
+    {
+      "code": "311800",
+      "description": "",
+      "group": "Manufacturing",
+      "title": "Bakeries & tortilla & dry pasta mfg."
+    },
+    {
+      "code": "311900",
+      "description": "",
+      "group": "Manufacturing",
+      "title": "Other food mfg. (including coffee, tea, flavorings, & seasonings)"
+    },
+    {
+      "code": "312000",
+      "description": "",
+      "group": "Manufacturing",
+      "title": "Beverage & tobacco product mfg."
+    },
+    {
+      "code": "313000",
+      "description": "",
+      "group": "Manufacturing",
+      "title": "Textile mills"
+    },
+    {
+      "code": "314000",
+      "description": "",
+      "group": "Manufacturing",
+      "title": "Textile product mills"
+    },
+    {
+      "code": "315000",
+      "description": "",
+      "group": "Manufacturing",
+      "title": "Apparel mfg."
+    },
+    {
+      "code": "316110",
+      "description": "",
+      "group": "Manufacturing",
+      "title": "Leather & hide tanning & finishing"
+    },
+    {
+      "code": "316210",
+      "description": "",
+      "group": "Manufacturing",
+      "title": "Footwear mfg. (including leather, rubber, & plastics)"
+    },
+    {
+      "code": "316990",
+      "description": "",
+      "group": "Manufacturing",
+      "title": "Other leather & allied product mfg."
+    },
+    {
+      "code": "321000",
+      "description": "",
+      "group": "Manufacturing",
+      "title": "Wood product mfg."
+    },
+    {
+      "code": "322000",
+      "description": "",
+      "group": "Manufacturing",
+      "title": "Paper mfg."
+    },
+    {
+      "code": "323100",
+      "description": "",
+      "group": "Manufacturing",
+      "title": "Printing & related support activities"
+    },
+    {
+      "code": "324100",
+      "description": "",
+      "group": "Manufacturing",
+      "title": "Petroleum & coal products mfg."
+    },
+    {
+      "code": "325100",
+      "description": "",
+      "group": "Manufacturing",
+      "title": "Basic chemical mfg."
+    },
+    {
+      "code": "325200",
+      "description": "",
+      "group": "Manufacturing",
+      "title": "Resin, synthetic rubber, & artificial & synthetic fibers & filaments mfg."
+    },
+    {
+      "code": "325300",
+      "description": "",
+      "group": "Manufacturing",
+      "title": "Pesticide, fertilizer, & other agricultural chemical mfg."
+    },
+    {
+      "code": "325410",
+      "description": "",
+      "group": "Manufacturing",
+      "title": "Pharmaceutical & medicine mfg."
+    },
+    {
+      "code": "325500",
+      "description": "",
+      "group": "Manufacturing",
+      "title": "Paint, coating, & adhesive mfg."
+    },
+    {
+      "code": "325600",
+      "description": "",
+      "group": "Manufacturing",
+      "title": "Soap, cleaning compound, & toilet preparation mfg."
+    },
+    {
+      "code": "325900",
+      "description": "",
+      "group": "Manufacturing",
+      "title": "Other chemical product & preparation mfg."
+    },
+    {
+      "code": "326000",
+      "description": "",
+      "group": "Manufacturing",
+      "title": "Plastics & rubber products mfg."
+    },
+    {
+      "code": "327100",
+      "description": "",
+      "group": "Manufacturing",
+      "title": "Clay product & refractory mfg."
+    },
+    {
+      "code": "327210",
+      "description": "",
+      "group": "Manufacturing",
+      "title": "Glass & glass product mfg."
+    },
+    {
+      "code": "327300",
+      "description": "",
+      "group": "Manufacturing",
+      "title": "Cement & concrete product mfg."
+    },
+    {
+      "code": "327400",
+      "description": "",
+      "group": "Manufacturing",
+      "title": "Lime & gypsum product mfg."
+    },
+    {
+      "code": "327900",
+      "description": "",
+      "group": "Manufacturing",
+      "title": "Other nonmetallic mineral product mfg."
+    },
+    {
+      "code": "331000",
+      "description": "",
+      "group": "Manufacturing",
+      "title": "Primary metal mfg."
+    },
+    {
+      "code": "332000",
+      "description": "",
+      "group": "Manufacturing",
+      "title": "Fabricated metal product mfg."
+    },
+    {
+      "code": "333000",
+      "description": "",
+      "group": "Manufacturing",
+      "title": "Machinery mfg."
+    },
+    {
+      "code": "334000",
+      "description": "",
+      "group": "Manufacturing",
+      "title": "Computer & electronic product mfg."
+    },
+    {
+      "code": "335000",
+      "description": "",
+      "group": "Manufacturing",
+      "title": "Electrical equipment, appliance, & component mfg."
+    },
+    {
+      "code": "336000",
+      "description": "",
+      "group": "Manufacturing",
+      "title": "Transportation equipment mfg."
+    },
+    {
+      "code": "337000",
+      "description": "",
+      "group": "Manufacturing",
+      "title": "Furniture & related product mfg."
+    },
+    {
+      "code": "339110",
+      "description": "",
+      "group": "Manufacturing",
+      "title": "Medical equipment & supplies mfg."
+    },
+    {
+      "code": "339900",
+      "description": "",
+      "group": "Manufacturing",
+      "title": "Other miscellaneous mfg."
+    },
+    {
+      "code": "423100",
+      "description": "",
+      "group": "Wholesale Trade",
+      "title": "Motor vehicle & motor vehicle parts & supplies"
+    },
+    {
+      "code": "423200",
+      "description": "",
+      "group": "Wholesale Trade",
+      "title": "Furniture & home furnishing"
+    },
+    {
+      "code": "423300",
+      "description": "",
+      "group": "Wholesale Trade",
+      "title": "Lumber & other construction materials"
+    },
+    {
+      "code": "423400",
+      "description": "",
+      "group": "Wholesale Trade",
+      "title": "Professional & commercial equipment & supplies"
+    },
+    {
+      "code": "423500",
+      "description": "",
+      "group": "Wholesale Trade",
+      "title": "Metal & mineral (except petroleum)"
+    },
+    {
+      "code": "423600",
+      "description": "",
+      "group": "Wholesale Trade",
+      "title": "Household appliances & electrical & electronic goods"
+    },
+    {
+      "code": "423700",
+      "description": "",
+      "group": "Wholesale Trade",
+      "title": "Hardware & plumbing & heating equipment & supplies"
+    },
+    {
+      "code": "423800",
+      "description": "",
+      "group": "Wholesale Trade",
+      "title": "Machinery, equipment, & supplies"
+    },
+    {
+      "code": "423910",
+      "description": "",
+      "group": "Wholesale Trade",
+      "title": "Sporting & recreational goods & supplies"
+    },
+    {
+      "code": "423920",
+      "description": "",
+      "group": "Wholesale Trade",
+      "title": "Toy & hobby goods & supplies"
+    },
+    {
+      "code": "423930",
+      "description": "",
+      "group": "Wholesale Trade",
+      "title": "Recyclable materials"
+    },
+    {
+      "code": "423940",
+      "description": "",
+      "group": "Wholesale Trade",
+      "title": "Jewelry, watches, precious stones, & precious metals"
+    },
+    {
+      "code": "423990",
+      "description": "",
+      "group": "Wholesale Trade",
+      "title": "Other miscellaneous durable goods"
+    },
+    {
+      "code": "424100",
+      "description": "",
+      "group": "Wholesale Trade",
+      "title": "Paper & paper products"
+    },
+    {
+      "code": "424210",
+      "description": "",
+      "group": "Wholesale Trade",
+      "title": "Drugs & druggists’ sundries"
+    },
+    {
+      "code": "424300",
+      "description": "",
+      "group": "Wholesale Trade",
+      "title": "Apparel, piece goods, & notions"
+    },
+    {
+      "code": "424400",
+      "description": "",
+      "group": "Wholesale Trade",
+      "title": "Grocery & related products"
+    },
+    {
+      "code": "424500",
+      "description": "",
+      "group": "Wholesale Trade",
+      "title": "Farm product raw materials"
+    },
+    {
+      "code": "424600",
+      "description": "",
+      "group": "Wholesale Trade",
+      "title": "Chemical & allied products"
+    },
+    {
+      "code": "424700",
+      "description": "",
+      "group": "Wholesale Trade",
+      "title": "Petroleum & petroleum products"
+    },
+    {
+      "code": "424800",
+      "description": "",
+      "group": "Wholesale Trade",
+      "title": "Beer, wine, & distilled alcoholic beverages"
+    },
+    {
+      "code": "424910",
+      "description": "",
+      "group": "Wholesale Trade",
+      "title": "Farm supplies"
+    },
+    {
+      "code": "424920",
+      "description": "",
+      "group": "Wholesale Trade",
+      "title": "Books, periodicals, & newspapers"
+    },
+    {
+      "code": "424930",
+      "description": "",
+      "group": "Wholesale Trade",
+      "title": "Flower, nursery stock, & florists’ supplies"
+    },
+    {
+      "code": "424940",
+      "description": "",
+      "group": "Wholesale Trade",
+      "title": "Tobacco products & electronic cigarettes"
+    },
+    {
+      "code": "424950",
+      "description": "",
+      "group": "Wholesale Trade",
+      "title": "Paint, varnish, & supplies"
+    },
+    {
+      "code": "424990",
+      "description": "",
+      "group": "Wholesale Trade",
+      "title": "Other miscellaneous nondurable goods"
+    },
+    {
+      "code": "425120",
+      "description": "",
+      "group": "Wholesale Trade Agents & Brokers",
+      "title": "Wholesale trade agents & brokers"
+    },
+    {
+      "code": "441110",
+      "description": "",
+      "group": "Retail Trade",
+      "title": "New car dealers"
+    },
+    {
+      "code": "441120",
+      "description": "",
+      "group": "Retail Trade",
+      "title": "Used car dealers"
+    },
+    {
+      "code": "441210",
+      "description": "",
+      "group": "Retail Trade",
+      "title": "Recreational vehicle dealers (including motor home & travel trailer dealers)"
+    },
+    {
+      "code": "441222",
+      "description": "",
+      "group": "Retail Trade",
+      "title": "Boat dealers"
+    },
+    {
+      "code": "441227",
+      "description": "",
+      "group": "Retail Trade",
+      "title": "Motorcycle, ATV, & all other motor vehicle dealers"
+    },
+    {
+      "code": "441300",
+      "description": "",
+      "group": "Retail Trade",
+      "title": "Automotive parts, accessories, & tire retailers"
+    },
+    {
+      "code": "444110",
+      "description": "",
+      "group": "Retail Trade",
+      "title": "Home centers"
+    },
+    {
+      "code": "444120",
+      "description": "",
+      "group": "Retail Trade",
+      "title": "Paint & wallpaper retailers"
+    },
+    {
+      "code": "444140",
+      "description": "",
+      "group": "Retail Trade",
+      "title": "Hardware retailers"
+    },
+    {
+      "code": "444180",
+      "description": "",
+      "group": "Retail Trade",
+      "title": "Other building materials dealers"
+    },
+    {
+      "code": "444200",
+      "description": "",
+      "group": "Retail Trade",
+      "title": "Lawn & garden equipment & supplies retailers"
+    },
+    {
+      "code": "445100",
+      "description": "",
+      "group": "Retail Trade",
+      "title": "Grocery & convenience retailers"
+    },
+    {
+      "code": "445132",
+      "description": "",
+      "group": "Retail Trade",
+      "title": "Vending machine operators"
+    },
+    {
+      "code": "445230",
+      "description": "",
+      "group": "Retail Trade",
+      "title": "Fruit & vegetable retailers"
+    },
+    {
+      "code": "445240",
+      "description": "",
+      "group": "Retail Trade",
+      "title": "Meat retailers"
+    },
+    {
+      "code": "445250",
+      "description": "",
+      "group": "Retail Trade",
+      "title": "Fish & seafood retailers"
+    },
+    {
+      "code": "445290",
+      "description": "",
+      "group": "Retail Trade",
+      "title": "Other specialty food retailers"
+    },
+    {
+      "code": "445320",
+      "description": "",
+      "group": "Retail Trade",
+      "title": "Beer, wine, & liquor retailers"
+    },
+    {
+      "code": "449110",
+      "description": "",
+      "group": "Retail Trade",
+      "title": "Furniture retailers"
+    },
+    {
+      "code": "449120",
+      "description": "",
+      "group": "Retail Trade",
+      "title": "Home furnishings retailers"
+    },
+    {
+      "code": "449210",
+      "description": "",
+      "group": "Retail Trade",
+      "title": "Electronics & appliance retailers (including computers)"
+    },
+    {
+      "code": "455000",
+      "description": "",
+      "group": "Retail Trade",
+      "title": "General merchandise retailers"
+    },
+    {
+      "code": "456110",
+      "description": "",
+      "group": "Retail Trade",
+      "title": "Pharmacies & drug retailers"
+    },
+    {
+      "code": "456120",
+      "description": "",
+      "group": "Retail Trade",
+      "title": "Cosmetics, beauty supplies, & perfume retailers"
+    },
+    {
+      "code": "456130",
+      "description": "",
+      "group": "Retail Trade",
+      "title": "Optical goods retailers"
+    },
+    {
+      "code": "456190",
+      "description": "",
+      "group": "Retail Trade",
+      "title": "Other health & personal care retailers"
+    },
+    {
+      "code": "457100",
+      "description": "",
+      "group": "Retail Trade",
+      "title": "Gasoline stations (including convenience stores with gas)"
+    },
+    {
+      "code": "457210",
+      "description": "",
+      "group": "Retail Trade",
+      "title": "Fuel dealers (including heating oil & liquefied petroleum)"
+    },
+    {
+      "code": "458110",
+      "description": "",
+      "group": "Retail Trade",
+      "title": "Clothing & clothing accessories retailers"
+    },
+    {
+      "code": "458210",
+      "description": "",
+      "group": "Retail Trade",
+      "title": "Shoe retailers"
+    },
+    {
+      "code": "458310",
+      "description": "",
+      "group": "Retail Trade",
+      "title": "Jewelry retailers"
+    },
+    {
+      "code": "458320",
+      "description": "",
+      "group": "Retail Trade",
+      "title": "Luggage & leather goods retailers"
+    },
+    {
+      "code": "459110",
+      "description": "",
+      "group": "Retail Trade",
+      "title": "Sporting goods retailers"
+    },
+    {
+      "code": "459120",
+      "description": "",
+      "group": "Retail Trade",
+      "title": "Hobby, toy, & game retailers"
+    },
+    {
+      "code": "459130",
+      "description": "",
+      "group": "Retail Trade",
+      "title": "Sewing, needlework, & piece goods retailers"
+    },
+    {
+      "code": "459140",
+      "description": "",
+      "group": "Retail Trade",
+      "title": "Musical instrument, & supplies retailers"
+    },
+    {
+      "code": "459210",
+      "description": "",
+      "group": "Retail Trade",
+      "title": "Book retailers & news dealers (including newsstands)"
+    },
+    {
+      "code": "459310",
+      "description": "",
+      "group": "Retail Trade",
+      "title": "Florists"
+    },
+    {
+      "code": "459410",
+      "description": "",
+      "group": "Retail Trade",
+      "title": "Office supplies & stationery retailers"
+    },
+    {
+      "code": "459420",
+      "description": "",
+      "group": "Retail Trade",
+      "title": "Gift, novelty, & souvenir retailers"
+    },
+    {
+      "code": "459510",
+      "description": "",
+      "group": "Retail Trade",
+      "title": "Used merchandise retailers"
+    },
+    {
+      "code": "459910",
+      "description": "",
+      "group": "Retail Trade",
+      "title": "Pet & pet supplies retailers"
+    },
+    {
+      "code": "459920",
+      "description": "",
+      "group": "Retail Trade",
+      "title": "Art dealers"
+    },
+    {
+      "code": "459930",
+      "description": "",
+      "group": "Retail Trade",
+      "title": "Manufactured (mobile) home dealers"
+    },
+    {
+      "code": "459990",
+      "description": "",
+      "group": "Retail Trade",
+      "title": "All other miscellaneous retailers (including tobacco, candle, & trophy retailers)"
+    },
+    {
+      "code": "481000",
+      "description": "",
+      "group": "Transportation & Warehousing",
+      "title": "Air transportation"
+    },
+    {
+      "code": "482110",
+      "description": "",
+      "group": "Transportation & Warehousing",
+      "title": "Rail transportation"
+    },
+    {
+      "code": "483000",
+      "description": "",
+      "group": "Transportation & Warehousing",
+      "title": "Water transportation"
+    },
+    {
+      "code": "484110",
+      "description": "",
+      "group": "Transportation & Warehousing",
+      "title": "General freight trucking, local"
+    },
+    {
+      "code": "484120",
+      "description": "",
+      "group": "Transportation & Warehousing",
+      "title": "General freight trucking, long distance"
+    },
+    {
+      "code": "484200",
+      "description": "",
+      "group": "Transportation & Warehousing",
+      "title": "Specialized freight trucking (including household moving vans)"
+    },
+    {
+      "code": "485110",
+      "description": "",
+      "group": "Transportation & Warehousing",
+      "title": "Urban transit systems"
+    },
+    {
+      "code": "485210",
+      "description": "",
+      "group": "Transportation & Warehousing",
+      "title": "Interurban & rural bus transportation"
+    },
+    {
+      "code": "485300",
+      "description": "",
+      "group": "Transportation & Warehousing",
+      "title": "Taxi, limousine, & ridesharing service"
+    },
+    {
+      "code": "485410",
+      "description": "",
+      "group": "Transportation & Warehousing",
+      "title": "School & employee bus transportation"
+    },
+    {
+      "code": "485510",
+      "description": "",
+      "group": "Transportation & Warehousing",
+      "title": "Charter bus industry"
+    },
+    {
+      "code": "485990",
+      "description": "",
+      "group": "Transportation & Warehousing",
+      "title": "Other transit & ground passenger transportation"
+    },
+    {
+      "code": "486000",
+      "description": "",
+      "group": "Transportation & Warehousing",
+      "title": "Pipeline transportation"
+    },
+    {
+      "code": "487000",
+      "description": "",
+      "group": "Transportation & Warehousing",
+      "title": "Scenic & sightseeing transportation"
+    },
+    {
+      "code": "488000",
+      "description": "",
+      "group": "Transportation & Warehousing",
+      "title": "Support activities for transportation (including motor vehicle towing)"
+    },
+    {
+      "code": "492000",
+      "description": "",
+      "group": "Transportation & Warehousing",
+      "title": "Couriers & messengers"
+    },
+    {
+      "code": "493100",
+      "description": "",
+      "group": "Transportation & Warehousing",
+      "title": "Warehousing & storage (except leases of miniwarehouses & self-storage units)"
+    },
+    {
+      "code": "512100",
+      "description": "",
+      "group": "Information",
+      "title": "Motion picture & video industries (except video rental)"
+    },
+    {
+      "code": "512200",
+      "description": "",
+      "group": "Information",
+      "title": "Sound recording industries"
+    },
+    {
+      "code": "513000",
+      "description": "",
+      "group": "Information",
+      "title": "Publishing industries"
+    },
+    {
+      "code": "516000",
+      "description": "",
+      "group": "Information",
+      "title": "Broadcasting & content providers"
+    },
+    {
+      "code": "517000",
+      "description": "",
+      "group": "Information",
+      "title": "Telecommunications (including wired, wireless, satellite, cable, & other program distribution, resellers, agents, other telecommunications, & internet service providers)"
+    },
+    {
+      "code": "518210",
+      "description": "",
+      "group": "Information",
+      "title": "Computing infrastructure providers, data processing, web hosting, & related services"
+    },
+    {
+      "code": "519200",
+      "description": "",
+      "group": "Information",
+      "title": "Web search portals, libraries, archives, & other info. services"
+    },
+    {
+      "code": "522100",
+      "description": "",
+      "group": "Finance & Insurance",
+      "title": "Depository credit intermediation (including commercial banking, savings institutions, & credit unions)"
+    },
+    {
+      "code": "522200",
+      "description": "",
+      "group": "Finance & Insurance",
+      "title": "Nondepository credit intermediation (including sales financing & consumer lending)"
+    },
+    {
+      "code": "522300",
+      "description": "",
+      "group": "Finance & Insurance",
+      "title": "Activities related to credit intermediation (including loan brokers)"
+    },
+    {
+      "code": "523150",
+      "description": "",
+      "group": "Finance & Insurance",
+      "title": "Investment banking & securities intermediation"
+    },
+    {
+      "code": "523160",
+      "description": "",
+      "group": "Finance & Insurance",
+      "title": "Commodity contracts intermediation"
+    },
+    {
+      "code": "523210",
+      "description": "",
+      "group": "Finance & Insurance",
+      "title": "Securities & commodity exchanges"
+    },
+    {
+      "code": "523900",
+      "description": "",
+      "group": "Finance & Insurance",
+      "title": "Other financial investment activities (including investment advice)"
+    },
+    {
+      "code": "524210",
+      "description": "",
+      "group": "Finance & Insurance",
+      "title": "Insurance agencies & brokerages"
+    },
+    {
+      "code": "524290",
+      "description": "",
+      "group": "Finance & Insurance",
+      "title": "Other insurance related activities"
+    },
+    {
+      "code": "531100",
+      "description": "",
+      "group": "Real Estate & Rental & Leasing",
+      "title": "Lessors of real estate (including miniwarehouses & self-storage units)"
+    },
+    {
+      "code": "531210",
+      "description": "",
+      "group": "Real Estate & Rental & Leasing",
+      "title": "Offices of real estate agents & brokers"
+    },
+    {
+      "code": "531310",
+      "description": "",
+      "group": "Real Estate & Rental & Leasing",
+      "title": "Real estate property managers"
+    },
+    {
+      "code": "531320",
+      "description": "",
+      "group": "Real Estate & Rental & Leasing",
+      "title": "Offices of real estate appraisers"
+    },
+    {
+      "code": "531390",
+      "description": "",
+      "group": "Real Estate & Rental & Leasing",
+      "title": "Other activities related to real estate"
+    },
+    {
+      "code": "532100",
+      "description": "",
+      "group": "Real Estate & Rental & Leasing",
+      "title": "Automotive equipment rental & leasing"
+    },
+    {
+      "code": "532210",
+      "description": "",
+      "group": "Real Estate & Rental & Leasing",
+      "title": "Consumer electronics & appliances rental"
+    },
+    {
+      "code": "532281",
+      "description": "",
+      "group": "Real Estate & Rental & Leasing",
+      "title": "Formal wear & costume rental"
+    },
+    {
+      "code": "532282",
+      "description": "",
+      "group": "Real Estate & Rental & Leasing",
+      "title": "Video tape & disc rental"
+    },
+    {
+      "code": "532283",
+      "description": "",
+      "group": "Real Estate & Rental & Leasing",
+      "title": "Home health equipment rental"
+    },
+    {
+      "code": "532284",
+      "description": "",
+      "group": "Real Estate & Rental & Leasing",
+      "title": "Recreational goods rental"
+    },
+    {
+      "code": "532289",
+      "description": "",
+      "group": "Real Estate & Rental & Leasing",
+      "title": "Other consumer goods rental"
+    },
+    {
+      "code": "532310",
+      "description": "",
+      "group": "Real Estate & Rental & Leasing",
+      "title": "General rental centers"
+    },
+    {
+      "code": "532400",
+      "description": "",
+      "group": "Real Estate & Rental & Leasing",
+      "title": "Commercial & industrial machinery & equipment rental & leasing"
+    },
+    {
+      "code": "541100",
+      "description": "",
+      "group": "Professional, Scientific, & Technical Services",
+      "title": "Legal services"
+    },
+    {
+      "code": "541211",
+      "description": "",
+      "group": "Professional, Scientific, & Technical Services",
+      "title": "Offices of certified public accountants"
+    },
+    {
+      "code": "541213",
+      "description": "",
+      "group": "Professional, Scientific, & Technical Services",
+      "title": "Tax preparation services"
+    },
+    {
+      "code": "541214",
+      "description": "",
+      "group": "Professional, Scientific, & Technical Services",
+      "title": "Payroll services"
+    },
+    {
+      "code": "541219",
+      "description": "",
+      "group": "Professional, Scientific, & Technical Services",
+      "title": "Other accounting services"
+    },
+    {
+      "code": "541310",
+      "description": "",
+      "group": "Professional, Scientific, & Technical Services",
+      "title": "Architectural services"
+    },
+    {
+      "code": "541320",
+      "description": "",
+      "group": "Professional, Scientific, & Technical Services",
+      "title": "Landscape architecture services"
+    },
+    {
+      "code": "541330",
+      "description": "",
+      "group": "Professional, Scientific, & Technical Services",
+      "title": "Engineering services"
+    },
+    {
+      "code": "541340",
+      "description": "",
+      "group": "Professional, Scientific, & Technical Services",
+      "title": "Drafting services"
+    },
+    {
+      "code": "541350",
+      "description": "",
+      "group": "Professional, Scientific, & Technical Services",
+      "title": "Building inspection services"
+    },
+    {
+      "code": "541360",
+      "description": "",
+      "group": "Professional, Scientific, & Technical Services",
+      "title": "Geophysical surveying & mapping services"
+    },
+    {
+      "code": "541370",
+      "description": "",
+      "group": "Professional, Scientific, & Technical Services",
+      "title": "Surveying & mapping (except geophysical) services"
+    },
+    {
+      "code": "541380",
+      "description": "",
+      "group": "Professional, Scientific, & Technical Services",
+      "title": "Testing laboratories & services"
+    },
+    {
+      "code": "541400",
+      "description": "",
+      "group": "Professional, Scientific, & Technical Services",
+      "title": "Specialized design services (including interior, industrial, graphic, & fashion design)"
+    },
+    {
+      "code": "541510",
+      "description": "",
+      "group": "Professional, Scientific, & Technical Services",
+      "title": "Computer systems design & related services"
+    },
+    {
+      "code": "541600",
+      "description": "",
+      "group": "Professional, Scientific, & Technical Services",
+      "title": "Management, scientific, & technical consulting services"
+    },
+    {
+      "code": "541700",
+      "description": "",
+      "group": "Professional, Scientific, & Technical Services",
+      "title": "Scientific research & development services"
+    },
+    {
+      "code": "541800",
+      "description": "",
+      "group": "Professional, Scientific, & Technical Services",
+      "title": "Advertising, public relations, & related services"
+    },
+    {
+      "code": "541910",
+      "description": "",
+      "group": "Professional, Scientific, & Technical Services",
+      "title": "Market research & public opinion polling"
+    },
+    {
+      "code": "541920",
+      "description": "",
+      "group": "Professional, Scientific, & Technical Services",
+      "title": "Photographic services"
+    },
+    {
+      "code": "541930",
+      "description": "",
+      "group": "Professional, Scientific, & Technical Services",
+      "title": "Translation & interpretation services"
+    },
+    {
+      "code": "541940",
+      "description": "",
+      "group": "Professional, Scientific, & Technical Services",
+      "title": "Veterinary services"
+    },
+    {
+      "code": "541990",
+      "description": "",
+      "group": "Professional, Scientific, & Technical Services",
+      "title": "All other professional, scientific, & technical services"
+    },
+    {
+      "code": "561110",
+      "description": "",
+      "group": "Administrative & Support and Waste Management & Remediation Services",
+      "title": "Office administrative services"
+    },
+    {
+      "code": "561210",
+      "description": "",
+      "group": "Administrative & Support and Waste Management & Remediation Services",
+      "title": "Facilities support (management) services"
+    },
+    {
+      "code": "561300",
+      "description": "",
+      "group": "Administrative & Support and Waste Management & Remediation Services",
+      "title": "Employment services"
+    },
+    {
+      "code": "561410",
+      "description": "",
+      "group": "Administrative & Support and Waste Management & Remediation Services",
+      "title": "Document preparation services"
+    },
+    {
+      "code": "561420",
+      "description": "",
+      "group": "Administrative & Support and Waste Management & Remediation Services",
+      "title": "Telephone call centers (including telephone answering services & telemarketing bureaus)"
+    },
+    {
+      "code": "561430",
+      "description": "",
+      "group": "Administrative & Support and Waste Management & Remediation Services",
+      "title": "Business service centers (including private mail centers & copy shops)"
+    },
+    {
+      "code": "561440",
+      "description": "",
+      "group": "Administrative & Support and Waste Management & Remediation Services",
+      "title": "Collection agencies"
+    },
+    {
+      "code": "561450",
+      "description": "",
+      "group": "Administrative & Support and Waste Management & Remediation Services",
+      "title": "Credit bureaus"
+    },
+    {
+      "code": "561490",
+      "description": "",
+      "group": "Administrative & Support and Waste Management & Remediation Services",
+      "title": "Other business support services (including repossession services, court reporting, & stenotype services)"
+    },
+    {
+      "code": "561500",
+      "description": "",
+      "group": "Administrative & Support and Waste Management & Remediation Services",
+      "title": "Travel arrangement & reservation services"
+    },
+    {
+      "code": "561600",
+      "description": "",
+      "group": "Administrative & Support and Waste Management & Remediation Services",
+      "title": "Investigation & security services"
+    },
+    {
+      "code": "561710",
+      "description": "",
+      "group": "Administrative & Support and Waste Management & Remediation Services",
+      "title": "Exterminating & pest control services"
+    },
+    {
+      "code": "561720",
+      "description": "",
+      "group": "Administrative & Support and Waste Management & Remediation Services",
+      "title": "Janitorial services"
+    },
+    {
+      "code": "561730",
+      "description": "",
+      "group": "Administrative & Support and Waste Management & Remediation Services",
+      "title": "Landscaping services"
+    },
+    {
+      "code": "561740",
+      "description": "",
+      "group": "Administrative & Support and Waste Management & Remediation Services",
+      "title": "Carpet & upholstery cleaning services"
+    },
+    {
+      "code": "561790",
+      "description": "",
+      "group": "Administrative & Support and Waste Management & Remediation Services",
+      "title": "Other services to buildings & dwellings"
+    },
+    {
+      "code": "561900",
+      "description": "",
+      "group": "Administrative & Support and Waste Management & Remediation Services",
+      "title": "Other support services (including packaging & labeling services, & convention & trade show organizers)"
+    },
+    {
+      "code": "562000",
+      "description": "",
+      "group": "Administrative & Support and Waste Management & Remediation Services",
+      "title": "Waste management & remediation services"
+    },
+    {
+      "code": "611000",
+      "description": "",
+      "group": "Educational Services",
+      "title": "Educational services (including schools, colleges, & universities)"
+    },
+    {
+      "code": "621111",
+      "description": "",
+      "group": "Health Care & Social Assistance",
+      "title": "Offices of physicians (except mental health specialists)"
+    },
+    {
+      "code": "621112",
+      "description": "",
+      "group": "Health Care & Social Assistance",
+      "title": "Offices of physicians, mental health specialists"
+    },
+    {
+      "code": "621210",
+      "description": "",
+      "group": "Health Care & Social Assistance",
+      "title": "Offices of dentists"
+    },
+    {
+      "code": "621310",
+      "description": "",
+      "group": "Health Care & Social Assistance",
+      "title": "Offices of chiropractors"
+    },
+    {
+      "code": "621320",
+      "description": "",
+      "group": "Health Care & Social Assistance",
+      "title": "Offices of optometrists"
+    },
+    {
+      "code": "621330",
+      "description": "",
+      "group": "Health Care & Social Assistance",
+      "title": "Offices of mental health practitioners (except physicians)"
+    },
+    {
+      "code": "621340",
+      "description": "",
+      "group": "Health Care & Social Assistance",
+      "title": "Offices of physical therapists, occupational & speech therapists, & audiologists"
+    },
+    {
+      "code": "621391",
+      "description": "",
+      "group": "Health Care & Social Assistance",
+      "title": "Offices of podiatrists"
+    },
+    {
+      "code": "621399",
+      "description": "",
+      "group": "Health Care & Social Assistance",
+      "title": "Offices of all other miscellaneous health practitioners"
+    },
+    {
+      "code": "621400",
+      "description": "",
+      "group": "Health Care & Social Assistance",
+      "title": "Outpatient care centers"
+    },
+    {
+      "code": "621510",
+      "description": "",
+      "group": "Health Care & Social Assistance",
+      "title": "Medical & diagnostic laboratories"
+    },
+    {
+      "code": "621610",
+      "description": "",
+      "group": "Health Care & Social Assistance",
+      "title": "Home health care services"
+    },
+    {
+      "code": "621900",
+      "description": "",
+      "group": "Health Care & Social Assistance",
+      "title": "Other ambulatory health care services (including ambulance services, blood banks, & organ banks)"
+    },
+    {
+      "code": "622000",
+      "description": "",
+      "group": "Health Care & Social Assistance",
+      "title": "Hospitals"
+    },
+    {
+      "code": "623000",
+      "description": "",
+      "group": "Health Care & Social Assistance",
+      "title": "Nursing & residential care facilities"
+    },
+    {
+      "code": "624100",
+      "description": "",
+      "group": "Health Care & Social Assistance",
+      "title": "Individual & family services"
+    },
+    {
+      "code": "624200",
+      "description": "",
+      "group": "Health Care & Social Assistance",
+      "title": "Community food & housing & emergency & other relief services"
+    },
+    {
+      "code": "624310",
+      "description": "",
+      "group": "Health Care & Social Assistance",
+      "title": "Vocational rehabilitation services"
+    },
+    {
+      "code": "624410",
+      "description": "",
+      "group": "Health Care & Social Assistance",
+      "title": "Childcare services"
+    },
+    {
+      "code": "711100",
+      "description": "",
+      "group": "Arts, Entertainment, & Recreation",
+      "title": "Performing arts companies"
+    },
+    {
+      "code": "711210",
+      "description": "",
+      "group": "Arts, Entertainment, & Recreation",
+      "title": "Spectator sports (including professional sports clubs & racetrack operations)"
+    },
+    {
+      "code": "711300",
+      "description": "",
+      "group": "Arts, Entertainment, & Recreation",
+      "title": "Promoters of performing arts, sports, & similar events"
+    },
+    {
+      "code": "711410",
+      "description": "",
+      "group": "Arts, Entertainment, & Recreation",
+      "title": "Agents & managers for artists, athletes, entertainers, & other public figures"
+    },
+    {
+      "code": "711510",
+      "description": "",
+      "group": "Arts, Entertainment, & Recreation",
+      "title": "Independent artists, writers, & performers"
+    },
+    {
+      "code": "712100",
+      "description": "",
+      "group": "Arts, Entertainment, & Recreation",
+      "title": "Museums, historical sites, & similar institutions"
+    },
+    {
+      "code": "713100",
+      "description": "",
+      "group": "Arts, Entertainment, & Recreation",
+      "title": "Amusement parks & arcades"
+    },
+    {
+      "code": "713200",
+      "description": "",
+      "group": "Arts, Entertainment, & Recreation",
+      "title": "Gambling industries"
+    },
+    {
+      "code": "713900",
+      "description": "",
+      "group": "Arts, Entertainment, & Recreation",
+      "title": "Other amusement & recreation services (including golf courses, skiing facilities, marinas, fitness centers, bowling centers, skating rinks, miniature golf courses)"
+    },
+    {
+      "code": "721100",
+      "description": "",
+      "group": "Accommodation, Food Services, & Drinking Places",
+      "title": "Traveler accommodation (including hotels, motels, & bed & breakfast inns)"
+    },
+    {
+      "code": "721210",
+      "description": "",
+      "group": "Accommodation, Food Services, & Drinking Places",
+      "title": "RV (recreational vehicle) parks & recreational camps"
+    },
+    {
+      "code": "721310",
+      "description": "",
+      "group": "Accommodation, Food Services, & Drinking Places",
+      "title": "Rooming & boarding houses, dormitories, & workers’ camps"
+    },
+    {
+      "code": "722300",
+      "description": "",
+      "group": "Accommodation, Food Services, & Drinking Places",
+      "title": "Special food services (including food service contractors & caterers)"
+    },
+    {
+      "code": "722410",
+      "description": "",
+      "group": "Accommodation, Food Services, & Drinking Places",
+      "title": "Drinking places (alcoholic beverages)"
+    },
+    {
+      "code": "722511",
+      "description": "",
+      "group": "Accommodation, Food Services, & Drinking Places",
+      "title": "Full-service restaurants"
+    },
+    {
+      "code": "722513",
+      "description": "",
+      "group": "Accommodation, Food Services, & Drinking Places",
+      "title": "Limited-service restaurants"
+    },
+    {
+      "code": "722514",
+      "description": "",
+      "group": "Accommodation, Food Services, & Drinking Places",
+      "title": "Cafeterias, grill buffets, & buffets"
+    },
+    {
+      "code": "722515",
+      "description": "",
+      "group": "Accommodation, Food Services, & Drinking Places",
+      "title": "Snack & nonalcoholic beverage bars"
+    },
+    {
+      "code": "811110",
+      "description": "",
+      "group": "Other Services",
+      "title": "Automotive mechanical & electrical repair & maintenance"
+    },
+    {
+      "code": "811120",
+      "description": "",
+      "group": "Other Services",
+      "title": "Automotive body, paint, interior, & glass repair"
+    },
+    {
+      "code": "811190",
+      "description": "",
+      "group": "Other Services",
+      "title": "Other automotive repair & maintenance (including oil change & lubrication shops & car washes)"
+    },
+    {
+      "code": "811210",
+      "description": "",
+      "group": "Other Services",
+      "title": "Electronic & precision equipment repair & maintenance"
+    },
+    {
+      "code": "811310",
+      "description": "",
+      "group": "Other Services",
+      "title": "Commercial & industrial machinery & equipment (except automotive & electronic) repair & maintenance"
+    },
+    {
+      "code": "811410",
+      "description": "",
+      "group": "Other Services",
+      "title": "Home & garden equipment & appliance repair & maintenance"
+    },
+    {
+      "code": "811420",
+      "description": "",
+      "group": "Other Services",
+      "title": "Reupholstery & furniture repair"
+    },
+    {
+      "code": "811430",
+      "description": "",
+      "group": "Other Services",
+      "title": "Footwear & leather goods repair"
+    },
+    {
+      "code": "811490",
+      "description": "",
+      "group": "Other Services",
+      "title": "Other personal & household goods repair & maintenance"
+    },
+    {
+      "code": "812111",
+      "description": "",
+      "group": "Other Services",
+      "title": "Barber shops"
+    },
+    {
+      "code": "812112",
+      "description": "",
+      "group": "Other Services",
+      "title": "Beauty salons"
+    },
+    {
+      "code": "812113",
+      "description": "",
+      "group": "Other Services",
+      "title": "Nail salons"
+    },
+    {
+      "code": "812190",
+      "description": "",
+      "group": "Other Services",
+      "title": "Other personal care services (including diet & weight reducing centers)"
+    },
+    {
+      "code": "812210",
+      "description": "",
+      "group": "Other Services",
+      "title": "Funeral homes & funeral services"
+    },
+    {
+      "code": "812220",
+      "description": "",
+      "group": "Other Services",
+      "title": "Cemeteries & crematories"
+    },
+    {
+      "code": "812310",
+      "description": "",
+      "group": "Other Services",
+      "title": "Coin-operated laundries & drycleaners"
+    },
+    {
+      "code": "812320",
+      "description": "",
+      "group": "Other Services",
+      "title": "Drycleaning & laundry services (except coin-operated) (including laundry & drycleaning drop-off & pickup sites)"
+    },
+    {
+      "code": "812330",
+      "description": "",
+      "group": "Other Services",
+      "title": "Linen & uniform supply"
+    },
+    {
+      "code": "812910",
+      "description": "",
+      "group": "Other Services",
+      "title": "Pet care (except veterinary) services"
+    },
+    {
+      "code": "812920",
+      "description": "",
+      "group": "Other Services",
+      "title": "Photofinishing"
+    },
+    {
+      "code": "812930",
+      "description": "",
+      "group": "Other Services",
+      "title": "Parking lots & garages"
+    },
+    {
+      "code": "812990",
+      "description": "",
+      "group": "Other Services",
+      "title": "All other personal services"
+    },
+    {
+      "code": "813000",
+      "description": "",
+      "group": "Religious, Grantmaking, Civic, Professional, & Similar Organizations",
+      "title": "Religious, grantmaking, civic, professional, & similar organizations"
+    },
+    {
+      "code": "999000",
+      "description": "",
+      "group": "Wholesale Trade Agents & Brokers",
+      "title": "Unclassified establishments (unable to classify)"
+    }
+  ],
+  "source": "https://www.irs.gov/instructions/i1040sc",
+  "version": "IRS Schedule C 2025"
+}

@@ -11,6 +11,7 @@ use serde_json::json;
 use usage::{Args, Cli, Subcommands};
 
 mod be_nice;
+mod classification;
 mod code_comment;
 mod cost;
 use cost::Cost;
@@ -31,6 +32,10 @@ enum Commands {
     CodeComments(Phi),
     /// Interactively score text from nice to mean as you type.
     BeNice(be_nice::Options),
+    /// Find an IRS business activity code; press Enter to submit.
+    Business(be_nice::Options),
+    /// Find an O*NET occupation code; press Enter to submit.
+    Job(be_nice::Options),
 }
 
 #[derive(Args)]
@@ -52,8 +57,17 @@ struct Response {
 #[derive(Deserialize)]
 #[serde(tag = "type", rename_all = "lowercase")]
 enum Answer {
-    Noul { noul: f64 },
-    Score { score: f64 },
+    Noul {
+        noul: f64,
+    },
+    Score {
+        score: f64,
+    },
+    Choice {
+        choice: String,
+        probabilities: std::collections::HashMap<String, f64>,
+        confidence: f64,
+    },
 }
 
 fn read_input(file: Option<&std::path::Path>) -> Result<String> {
@@ -139,6 +153,45 @@ fn request(
         for (id, answer) in &result.answers {
             let question = &body["questions"][id];
             let (value, maximum) = match answer {
+                Answer::Choice {
+                    choice,
+                    probabilities,
+                    confidence,
+                } => {
+                    ensure!(
+                        question["type"] == "choice",
+                        "unexpected Choice answer for {id}"
+                    );
+                    let options = question["criteria"]
+                        .as_object()
+                        .context("missing Choice criteria")?;
+                    ensure!(
+                        options.contains_key(choice),
+                        "unknown Choice option for {id}"
+                    );
+                    ensure!(
+                        probabilities.len() == options.len()
+                            && probabilities.keys().all(|key| options.contains_key(key)),
+                        "Choice probabilities do not match options for {id}"
+                    );
+                    ensure!(
+                        probabilities
+                            .values()
+                            .all(|p| p.is_finite() && (0.0..=1.0).contains(p)),
+                        "invalid Choice probabilities for {id}"
+                    );
+                    ensure!(
+                        (probabilities.values().sum::<f64>() - 1.0).abs() < 0.02,
+                        "Choice probabilities do not sum to one for {id}"
+                    );
+                    ensure!(
+                        probabilities
+                            .values()
+                            .all(|p| *p <= probabilities[choice] + 1e-6),
+                        "Choice winner does not match probabilities for {id}"
+                    );
+                    (*confidence, 1.0)
+                }
                 Answer::Noul { noul } => {
                     ensure!(
                         question["type"] == "noul",
@@ -171,6 +224,8 @@ fn request(
 fn run(cli: Cli, cost: &Cost) -> Result<()> {
     match cli.command {
         Commands::BeNice(args) => be_nice::run(args, cost)?,
+        Commands::Business(args) => be_nice::run_mode(args, cost, be_nice::Mode::Business)?,
+        Commands::Job(args) => be_nice::run_mode(args, cost, be_nice::Mode::Job)?,
         Commands::CodeComments(args) => code_comment::run(args, cost)?,
         Commands::Phi(args) => {
             let directory = args.file.as_ref().filter(|path| path.is_dir());
@@ -300,4 +355,55 @@ fn main() -> ExitCode {
     };
     eprintln!("{}", cost.summary());
     exit
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn choice_response_cannot_invent_codes_or_probabilities() {
+        for (answer, valid) in [
+            (
+                json!({"type": "choice", "choice": "known", "probabilities": {"known": 0.9, "other": 0.1}, "confidence": 0.8}),
+                true,
+            ),
+            (
+                json!({"type": "choice", "choice": "invented", "probabilities": {"known": 0.9, "other": 0.1}, "confidence": 0.8}),
+                false,
+            ),
+            (
+                json!({"type": "choice", "choice": "known", "probabilities": {"known": 1.0, "invented": 0.0}, "confidence": 0.8}),
+                false,
+            ),
+            (
+                json!({"type": "choice", "choice": "known", "probabilities": {"known": 1.2, "other": -0.2}, "confidence": 0.8}),
+                false,
+            ),
+            (
+                json!({"type": "choice", "choice": "known", "probabilities": {"known": 0.1, "other": 0.1}, "confidence": 0.8}),
+                false,
+            ),
+        ] {
+            let server = tiny_http::Server::http("127.0.0.1:0").unwrap();
+            let endpoint = format!("http://{}/v1/systemone", server.server_addr());
+            let worker = std::thread::spawn(move || {
+                let request = server
+                    .recv_timeout(Duration::from_secs(5))
+                    .unwrap()
+                    .unwrap();
+                request.respond(tiny_http::Response::from_string(json!({"answers": {"classification": answer}, "usage": {"input_tokens": 1000}}).to_string())).unwrap();
+            });
+            let cost = Cost::default();
+            let result = request(
+                &json!({"questions": {"classification": {"type": "choice", "criteria": {"known": "Known", "other": "Other"}}}}),
+                &endpoint,
+                "mock",
+                &cost,
+            );
+            assert_eq!(result.is_ok(), valid);
+            assert_eq!(cost.summary(), "Cost: 0.0042¢");
+            worker.join().unwrap();
+        }
+    }
 }

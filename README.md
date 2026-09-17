@@ -1,8 +1,11 @@
-# typesafe-ai
+# TypeSafe AI Playground
 
-A Rust CLI built with [usage-rs](https://usage.jdx.dev/rust/) that evaluates text
-using TypeSafe's System One API and returns a **Noul**: the probability that the
-text contains personal health information (PHI).
+Just a playground for experiments around [Jev](https://docs.typesafe.ai/),
+TypeSafe's System One model.
+
+The experiments live in a Rust CLI called `typesafe-ai`, built with
+[usage-rs](https://usage.jdx.dev/rust/): PHI detection, code-comment review,
+interactive tone analysis, and business and occupation classification.
 
 ## Install
 
@@ -148,6 +151,38 @@ are converted to spaces. **F1** shows editing help, **Esc** closes help, and
 Exiting restores the terminal and prints the cost summary to stderr. If requests
 are still in flight on exit, their costs are reported as unknown rather than
 blocking terminal exit. `NO_COLOR` disables the color scale.
+
+## Business and occupation classification
+
+```sh
+typesafe-ai business
+typesafe-ai job
+```
+
+Both are interactive Rust terminal views. Type or paste a free-form description,
+then press **Enter** to classify it. Typing alone makes no API calls. `business` classifies the principal
+revenue-producing activity using the **2025 IRS Schedule C code list**;
+`job` classifies a person's duties using **O*NET® 31.0 occupation codes**.
+
+Each view shows the selected official code/title, its description where provided,
+and the top five candidates with probability bars. The previous result remains
+visible during edits; clearing the text clears results. They share `be-nice`'s
+editing controls, F1 help, Ctrl-C exit, color settings, and cost-on-exit reporting.
+
+Classification first compares broad categories, then compares codes from the
+two leading categories. Candidate pools larger than 253 codes are recursively
+split in half and narrowed by additional Choices. Every Choice has at most 255
+options, including **insufficient information** and **no matching option**.
+An obsolete classification stops before its next API call, and late responses
+cannot replace current results.
+
+Displayed probabilities come from the final Choice **among the shortlisted
+candidates**, not a distribution over the entire catalog. Category pruning can
+miss a relevant code; the explicit no-match option allows the model to say so.
+Codes and labels always come from bundled data, never generated text.
+
+Sources, versions, attribution, and the Rust regeneration command are documented
+in [`data/README.md`](data/README.md).
 
 ## Configuration
 

@@ -1,7 +1,11 @@
 use std::{
     collections::HashSet,
     io::{self, IsTerminal},
-    sync::mpsc,
+    sync::{
+        Arc,
+        atomic::{AtomicU64, Ordering},
+        mpsc,
+    },
     time::{Duration, Instant},
 };
 
@@ -22,7 +26,23 @@ use ratatui::{
 use serde_json::json;
 use unicode_width::{UnicodeWidthChar, UnicodeWidthStr};
 
-use crate::{Answer, Cost, request};
+use crate::{
+    Answer, Cost,
+    classification::{self, Catalog, Classification},
+    request,
+};
+
+#[derive(Clone, Copy)]
+pub(crate) enum Mode {
+    Tone,
+    Business,
+    Job,
+}
+
+enum LiveResult {
+    Tone(f64),
+    Classification(Classification),
+}
 
 #[derive(usage::Args)]
 #[usage(unknown_flags = "error")]
@@ -144,6 +164,7 @@ struct App {
     revision: u64,
     changed: Option<Instant>,
     score: Option<f64>,
+    classification: Option<Classification>,
     error: Option<String>,
     help: bool,
 }
@@ -154,6 +175,7 @@ impl App {
         self.changed = (!self.input.text().trim().is_empty()).then_some(now);
         if self.changed.is_none() {
             self.score = None;
+            self.classification = None;
         }
         self.error = None;
     }
@@ -163,13 +185,17 @@ impl App {
             .is_some_and(|changed| now.duration_since(changed) >= DEBOUNCE)
     }
 
-    fn accept(&mut self, revision: u64, result: Result<f64>) {
+    fn accept(&mut self, revision: u64, result: Result<LiveResult>) {
         if revision != self.revision {
             return;
         }
         match result {
-            Ok(score) => {
+            Ok(LiveResult::Tone(score)) => {
                 self.score = Some(score);
+                self.error = None;
+            }
+            Ok(LiveResult::Classification(result)) => {
+                self.classification = Some(result);
                 self.error = None;
             }
             Err(error) => {
@@ -191,20 +217,49 @@ fn tone_color(score: f64, color: bool) -> Style {
     ))
 }
 
-fn draw(frame: &mut Frame, app: &App, color: bool) {
+fn draw(frame: &mut Frame, app: &App, color: bool, mode: Mode, catalog: Option<&Catalog>) {
     let areas = Layout::vertical([
         Constraint::Length(1),
         Constraint::Length(3),
-        Constraint::Length(2),
-        Constraint::Min(1),
+        if matches!(mode, Mode::Tone) {
+            Constraint::Length(2)
+        } else {
+            Constraint::Fill(1)
+        },
+        if matches!(mode, Mode::Tone) {
+            Constraint::Min(1)
+        } else {
+            Constraint::Length(if app.help {
+                7
+            } else if app.error.is_some() {
+                3
+            } else {
+                0
+            })
+        },
     ])
     .split(frame.area());
     frame.render_widget(
-        Paragraph::new("be-nice  ·  live tone analysis")
-            .style(Style::default().add_modifier(Modifier::BOLD)),
+        Paragraph::new(match mode {
+            Mode::Tone => "be-nice  ·  live tone analysis".into(),
+            Mode::Business | Mode::Job => format!(
+                "{}  ·  {}",
+                if matches!(mode, Mode::Business) {
+                    "business"
+                } else {
+                    "job"
+                },
+                catalog.map(|c| c.version.as_str()).unwrap_or("")
+            ),
+        })
+        .style(Style::default().add_modifier(Modifier::BOLD)),
         areas[0],
     );
-    let block = Block::default().borders(Borders::ALL).title(" Text ");
+    let block = Block::default().borders(Borders::ALL).title(match mode {
+        Mode::Tone => " Text ",
+        Mode::Business => " Describe your business ",
+        Mode::Job => " Describe your job duties ",
+    });
     let inner = block.inner(areas[1]);
     let cursor_width: usize = app.input.chars[..app.input.cursor]
         .iter()
@@ -220,51 +275,114 @@ fn draw(frame: &mut Frame, app: &App, color: bool) {
     if inner.width > 0 && inner.height > 0 {
         frame.set_cursor_position((inner.x + (cursor_width - scroll) as u16, inner.y));
     }
-    let width = usize::from(areas[2].width.saturating_sub(2)).clamp(1, 60);
-    let marker = "";
-    let marker_width = marker.width().max(1);
-    let position = app
-        .score
-        .map(|score| ((score / 4.0) * width.saturating_sub(marker_width) as f64).round() as usize);
-    let mut bar = Vec::new();
-    for index in 0..width {
-        if position.is_some_and(|position| index > position && index < position + marker_width) {
-            continue;
+    if !matches!(mode, Mode::Tone) {
+        let mut lines = Vec::new();
+        if let Some(result) = &app.classification {
+            if let Some(selected) = result
+                .candidates
+                .iter()
+                .find(|candidate| candidate.code == result.selected)
+            {
+                let code = if selected.code.contains('_') {
+                    String::new()
+                } else {
+                    format!("{}  ", selected.code)
+                };
+                lines.push(Line::styled(
+                    format!("{code}{}", selected.title),
+                    Style::default().add_modifier(Modifier::BOLD),
+                ));
+                if !selected.description.is_empty() {
+                    lines.push(Line::from(selected.description.clone()));
+                }
+                lines.push(Line::from(""));
+            }
+            lines.push(Line::from("Candidate probabilities"));
+            for candidate in result.candidates.iter().take(5) {
+                let filled = (candidate.probability * 16.0).round() as usize;
+                let code = if candidate.code.contains('_') {
+                    "—"
+                } else {
+                    &candidate.code
+                };
+                lines.push(Line::from(vec![
+                    Span::styled(
+                        format!("{}{}", "█".repeat(filled), " ".repeat(16 - filled)),
+                        if color {
+                            Style::default().fg(Color::Cyan)
+                        } else {
+                            Style::default()
+                        },
+                    ),
+                    Span::raw(format!(
+                        " {:3.0}%  {code}  {}",
+                        candidate.probability * 100.0,
+                        candidate.title
+                    )),
+                ]));
+            }
+            if !result.groups.is_empty() {
+                lines.push(Line::from(""));
+                lines.push(Line::from(format!(
+                    "Categories: {}",
+                    result.groups.join(" · ")
+                )));
+            }
         }
-        let glyph = if position == Some(index) {
-            marker
-        } else {
-            "━"
-        };
-        bar.push(Span::styled(
-            glyph,
-            tone_color(
-                index as f64 * 4.0 / width.saturating_sub(1).max(1) as f64,
-                color,
-            ),
-        ));
-    }
-    let status = if let Some(score) = app.score {
-        let level = score.round() as usize;
-        format!("{} {} · {:.2}/4", ICONS[level], LABELS[level], score)
-    } else if app.error.is_some() {
-        "Could not score this text; edit it to try again".into()
+        frame.render_widget(Paragraph::new(lines).wrap(Wrap { trim: false }), areas[2]);
     } else {
-        String::new()
-    };
-    frame.render_widget(
-        Paragraph::new(vec![Line::from(bar), Line::from(status)]),
-        areas[2],
-    );
+        let width = usize::from(areas[2].width.saturating_sub(2)).clamp(1, 60);
+        let marker = "";
+        let marker_width = marker.width().max(1);
+        let position = app.score.map(|score| {
+            ((score / 4.0) * width.saturating_sub(marker_width) as f64).round() as usize
+        });
+        let mut bar = Vec::new();
+        for index in 0..width {
+            if position.is_some_and(|position| index > position && index < position + marker_width)
+            {
+                continue;
+            }
+            let glyph = if position == Some(index) {
+                marker
+            } else {
+                "━"
+            };
+            bar.push(Span::styled(
+                glyph,
+                tone_color(
+                    index as f64 * 4.0 / width.saturating_sub(1).max(1) as f64,
+                    color,
+                ),
+            ));
+        }
+        let status = if let Some(score) = app.score {
+            let level = score.round() as usize;
+            format!("{} {} · {:.2}/4", ICONS[level], LABELS[level], score)
+        } else if app.error.is_some() {
+            "Could not score this text; edit it to try again".into()
+        } else {
+            String::new()
+        };
+        frame.render_widget(
+            Paragraph::new(vec![Line::from(bar), Line::from(status)]),
+            areas[2],
+        );
+    }
     let footer = if app.help {
         "←/→ or Ctrl-B/F: move · Home/End or Ctrl-A/E: start/end\nAlt-B/F: move by word · Ctrl-U/K/W: cut · Ctrl-Y: yank\nBackspace/Ctrl-H: delete left · Delete/Ctrl-D: delete right\nF1: help · Esc: close help · Ctrl-C: quit · Paste supported"
     } else {
         ""
     };
-    let text = match &app.error {
+    let mut text = match &app.error {
         Some(error) => format!("{error}\n{footer}"),
         None => footer.to_owned(),
     };
+    if app.help
+        && let Some(catalog) = catalog
+    {
+        text.push_str(&format!("\nSource: {}", catalog.source));
+    }
     frame.render_widget(Paragraph::new(text).wrap(Wrap { trim: false }), areas[3]);
 }
 
@@ -282,15 +400,25 @@ impl Drop for RestoreTerminal {
 }
 
 pub(super) fn run(options: Options, cost: &Cost) -> Result<()> {
+    run_mode(options, cost, Mode::Tone)
+}
+
+pub(super) fn run_mode(options: Options, cost: &Cost, mode: Mode) -> Result<()> {
     ensure!(
         io::stdin().is_terminal() && io::stdout().is_terminal(),
-        "be-nice requires an interactive terminal"
+        "this command requires an interactive terminal"
     );
     let key = std::env::var("TYPESAFE_API_KEY")
         .context("set TYPESAFE_API_KEY to your TypeSafe API key")?;
     ensure!(!key.trim().is_empty(), "TYPESAFE_API_KEY is empty");
     let endpoint = std::env::var("TYPESAFE_ENDPOINT")
         .unwrap_or_else(|_| "https://api.typesafe.ai/v1/systemone".into());
+    let catalog = match mode {
+        Mode::Tone => None,
+        Mode::Business => Some(Arc::new(classification::load(true)?)),
+        Mode::Job => Some(Arc::new(classification::load(false)?)),
+    };
+    let current_revision = Arc::new(AtomicU64::new(0));
     enable_raw_mode()?;
     let _restore = RestoreTerminal;
     execute!(
@@ -305,12 +433,13 @@ pub(super) fn run(options: Options, cost: &Cost) -> Result<()> {
     let color = std::env::var_os("NO_COLOR").is_none();
     let result = (|| -> Result<()> {
         loop {
+            let mut submitted = false;
             while let Ok((revision, result, usage)) = receiver.try_recv() {
                 pending.remove(&revision);
                 cost.merge(&usage);
                 app.accept(revision, result);
             }
-            terminal.draw(|frame| draw(frame, &app, color))?;
+            terminal.draw(|frame| draw(frame, &app, color, mode, catalog.as_deref()))?;
             // Read queued edits before evaluating the debounce deadline.
             if event::poll(Duration::from_millis(20))? {
                 match event::read()? {
@@ -324,23 +453,30 @@ pub(super) fn run(options: Options, cost: &Cost) -> Result<()> {
                             app.help = !app.help;
                         } else if key.code == KeyCode::Esc {
                             app.help = false;
+                        } else if key.code == KeyCode::Enter && !matches!(mode, Mode::Tone) {
+                            submitted = !app.input.text().trim().is_empty()
+                                && !pending.contains(&app.revision);
                         } else {
                             let before = app.input.text();
                             app.input.key(key);
                             if before != app.input.text() {
                                 app.edited(Instant::now());
+                                current_revision.store(app.revision, Ordering::Relaxed);
                             }
                         }
                     }
                     Event::Paste(text) => {
                         app.input.insert(&text);
                         app.edited(Instant::now());
+                        current_revision.store(app.revision, Ordering::Relaxed);
                     }
                     _ => {}
                 }
-                continue;
+                if !submitted {
+                    continue;
+                }
             }
-            if app.due(Instant::now()) {
+            if submitted || (matches!(mode, Mode::Tone) && app.due(Instant::now())) {
                 let revision = app.revision;
                 let text = app.input.text();
                 let body = json!({
@@ -355,16 +491,35 @@ pub(super) fn run(options: Options, cost: &Cost) -> Result<()> {
                 let sender = sender.clone();
                 let endpoint = endpoint.clone();
                 let key = key.clone();
+                let catalog = catalog.clone();
+                let current_revision = current_revision.clone();
+                let model = options.model.clone();
                 std::thread::Builder::new()
                     .spawn(move || {
                         let usage = Cost::default();
-                        let result =
+                        let result = if let Some(catalog) = catalog {
+                            classification::classify(
+                                &catalog,
+                                matches!(mode, Mode::Business),
+                                &text,
+                                &model,
+                                |body| {
+                                    ensure!(
+                                        current_revision.load(Ordering::Relaxed) == revision,
+                                        "superseded classification"
+                                    );
+                                    request(body, &endpoint, &key, &usage)
+                                },
+                            )
+                            .map(LiveResult::Classification)
+                        } else {
                             request(&body, &endpoint, &key, &usage).and_then(|mut answers| {
                                 match answers.remove("tone") {
-                                    Some(Answer::Score { score }) => Ok(score),
+                                    Some(Answer::Score { score }) => Ok(LiveResult::Tone(score)),
                                     _ => anyhow::bail!("missing tone Score answer"),
                                 }
-                            });
+                            })
+                        };
                         let _ = sender.send((revision, result, usage));
                     })
                     .context("could not start tone request")?;
@@ -399,7 +554,7 @@ mod tests {
             let mut terminal =
                 Terminal::new(ratatui::backend::TestBackend::new(width, height)).unwrap();
             terminal
-                .draw(|frame| draw(frame, &app, true))
+                .draw(|frame| draw(frame, &app, true, Mode::Tone, None))
                 .unwrap();
         }
     }
@@ -448,9 +603,9 @@ mod tests {
         app.input.insert(" friend");
         app.edited(now + Duration::from_millis(25));
         assert!(!app.due(now + DEBOUNCE));
-        app.accept(1, Ok(4.0));
+        app.accept(1, Ok(LiveResult::Tone(4.0)));
         assert!(app.score.is_none());
-        app.accept(2, Ok(0.5));
+        app.accept(2, Ok(LiveResult::Tone(0.5)));
         assert_eq!(app.score, Some(0.5));
         app.input.chars.clear();
         app.input.cursor = 0;

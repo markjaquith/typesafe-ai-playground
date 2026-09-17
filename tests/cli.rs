@@ -282,7 +282,13 @@ fn input_and_auth_errors_are_actionable() {
 
 #[test]
 fn help_and_argument_errors() {
-    for args in [vec!["--help"], vec!["phi", "--help"], vec!["--version"]] {
+    for args in [
+        vec!["--help"],
+        vec!["phi", "--help"],
+        vec!["business", "--help"],
+        vec!["job", "--help"],
+        vec!["--version"],
+    ] {
         let output = command().args(args).output().unwrap();
         assert!(output.status.success());
         assert!(!output.stdout.is_empty());
