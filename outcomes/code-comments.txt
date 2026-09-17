@@ -1,0 +1,256 @@
+math.ts:2
+Accuracy:   ███████████████████████▋  98/100 · Accurate without material errors
+Usefulness: ▋                          3/100 · No useful information
+╭───────────────────────────────╮
+│ // Multiply the value by two. │
+│ return value * 2              │
+╰───────────────────────────────╯
+
+math.ts:7
+Accuracy:   ▍                          1/100 · Fundamentally wrong
+Usefulness: ███▎                      13/100 · No useful information
+╭─────────────────────────────────╮
+│ // Multiply the value by three. │
+│ return value / 3                │
+╰─────────────────────────────────╯
+
+order.ts:16
+Accuracy:   ██████████████████████    92/100 · Accurate without material errors
+Usefulness: ████████████▍             52/100 · Explains non-obvious behavior
+╭─────────────────────────────────────────────────────────────────────────╮
+│ // A basis point is one hundredth of a percent, so 750 represents 7.5%. │
+│ const BASIS_POINTS = 10_000;                                            │
+╰─────────────────────────────────────────────────────────────────────────╯
+
+order.ts:21
+Accuracy:   ███████████████████████▌  98/100 · Accurate without material errors
+Usefulness: ██████▋                   28/100 · Mostly redundant
+╭─────────────────────────────────────────────────────────────────────────╮
+│ // Throw an error if value is not a nonnegative safe integer.           │
+│ function requireNonnegativeInteger(value: number, name: string): void { │
+╰─────────────────────────────────────────────────────────────────────────╯
+
+order.ts:28-32
+Accuracy:   ██████████████████▉       79/100 · Mostly accurate
+Usefulness: ███████████████████▍      81/100 · Explains non-obvious behavior
+╭──────────────────────────────────────────────────────────────────────────────────────────╮
+│ /*                                                                                       │
+│  * Allocate whole cents with the largest-remainder method. Independently rounding        │
+│  * each line can make the allocations differ from the order-level discount.              │
+│  * On equal remainders, input order wins so repeated invoices stay identical.            │
+│  */                                                                                      │
+│ export function allocateDiscount(lineCents: number[], discountCents: number): number[] { │
+╰──────────────────────────────────────────────────────────────────────────────────────────╯
+
+order.ts:41-42
+Accuracy:   ██████████████████████▌   94/100 · Accurate without material errors
+Usefulness: ████████████████▍         68/100 · Explains non-obvious behavior
+╭────────────────────────────────────────────────────────────────────────────╮
+│ // BigInt keeps the product exact even when both operands are valid safe   │
+│ // integers but their product is too large for an exact JavaScript number. │
+│ const denominator = BigInt(subtotal);                                      │
+╰────────────────────────────────────────────────────────────────────────────╯
+
+order.ts:51
+Accuracy:   ████████▋                 36/100 · Substantial errors
+Usefulness: ███████████▌              48/100 · Mostly redundant
+╭───────────────────────────────────────────────────────────────────╮
+│ // Give leftover pennies to the smallest fractional shares first. │
+│ ranked.sort((a, b) => {                                           │
+╰───────────────────────────────────────────────────────────────────╯
+
+order.ts:60
+Accuracy:   ███████████████████████   96/100 · Accurate without material errors
+Usefulness: ▉                          4/100 · No useful information
+╭──────────────────╮
+│ // Add one cent. │
+│ remaining -= 1;  │
+╰──────────────────╯
+
+order.ts:66-69
+Accuracy:   ██████████████████████▉   95/100 · Accurate without material errors
+Usefulness: ███████████████           62/100 · Explains non-obvious behavior
+╭────────────────────────────────────────────────────────────────────────────╮
+│ /**                                                                        │
+│  * Calculate an invoice in integer cents. The discount applies before tax; │
+│  * shipping is not taxable under this store's pricing policy.              │
+│  */                                                                        │
+│ export function calculateOrder(                                            │
+╰────────────────────────────────────────────────────────────────────────────╯
+
+order.ts:84
+Accuracy:   ███████████████████████▌  98/100 · Accurate without material errors
+Usefulness: ██                         8/100 · No useful information
+╭───────────────────────────────────────────────────────────────────────────╮
+│ // Sum the line amounts to obtain the subtotal.                           │
+│ const subtotalCents = lineCents.reduce((sum, amount) => sum + amount, 0); │
+╰───────────────────────────────────────────────────────────────────────────╯
+
+order.ts:88
+Accuracy:   ████████████████████▎     84/100 · Accurate without material errors
+Usefulness: █████████▋                40/100 · Mostly redundant
+╭──────────────────────────────────────────────────────────────────────────╮
+│ // Tax is rounded separately for every line before being added together. │
+│ const taxableCents = items.reduce((sum, item, index) => {                │
+╰──────────────────────────────────────────────────────────────────────────╯
+
+order.ts:95-98
+Accuracy:   █████████████████████▋    90/100 · Accurate without material errors
+Usefulness: ███████████████████████   96/100 · Important rationale or context
+╭─────────────────────────────────────────────────────────────────────────────╮
+│ /*                                                                          │
+│  * Customer support promised that coupons would never revoke free shipping. │
+│  * Eligibility therefore uses the merchandise subtotal before discounts.    │
+│  */                                                                         │
+│ const hasMerchandise = items.some((item) => item.quantity > 0);             │
+╰─────────────────────────────────────────────────────────────────────────────╯
+
+order.ts:104
+Accuracy:   ██████████████            58/100 · Mostly accurate
+Usefulness: ██████████████▍           60/100 · Explains non-obvious behavior
+╭────────────────────────────────────────────────────────────────────────────────╮
+│ // TODO: exclude shipping from the final total once invoices include shipping. │
+│ const totalCents = subtotalCents - discountCents + taxCents + shippingCents;   │
+╰────────────────────────────────────────────────────────────────────────────────╯
+
+order.ts:108
+Accuracy:   ███████████████████████▏  96/100 · Accurate without material errors
+Usefulness: █▌                         6/100 · No useful information
+╭───────────────────────────────────────────────────────────────────────────────╮
+│ // Return the totals.                                                         │
+│ return { subtotalCents, discountCents, taxCents, shippingCents, totalCents }; │
+╰───────────────────────────────────────────────────────────────────────────────╯
+
+order.ts:112
+Accuracy:   ███████████████████████   96/100 · Accurate without material errors
+Usefulness: ███████████▎              47/100 · Mostly redundant
+╭────────────────────────────────────────────────────────────────────────╮
+│ // Sorting creates a new array, preserving the caller's display order. │
+│ export function sortBySku(items: LineItem[]): LineItem[] {             │
+╰────────────────────────────────────────────────────────────────────────╯
+
+order.ts:117
+Accuracy:   ███████████████████       79/100 · Mostly accurate
+Usefulness: ██████▏                   25/100 · Mostly redundant
+╭─────────────────────────────────────────────────────────────────────────────────────╮
+│ // Remove surrounding whitespace and compare coupon codes without case sensitivity. │
+│ export function normalizeCoupon(code: string): string {                             │
+╰─────────────────────────────────────────────────────────────────────────────────────╯
+
+retry.js:5
+Accuracy:   ███████████████████████▉  99/100 · Accurate without material errors
+Usefulness: ██▍                       10/100 · No useful information
+╭───────────────────────────────────────────╮
+│ // Convert seconds to milliseconds.       │
+│ function secondsToMilliseconds(seconds) { │
+╰───────────────────────────────────────────╯
+
+retry.js:10-14
+Accuracy:   ███████████████████████▌  98/100 · Accurate without material errors
+Usefulness: ████████████████▏         67/100 · Explains non-obvious behavior
+╭──────────────────────────────────────────────────────────────────────────╮
+│ /*                                                                       │
+│  * Retry-After has two wire formats: a delay in seconds or an HTTP date. │
+│  * Treat an expired date as immediately retryable rather than passing a  │
+│  * negative timeout to the scheduler.                                    │
+│  */                                                                      │
+│ function parseRetryAfter(value, now = Date.now()) {                      │
+╰──────────────────────────────────────────────────────────────────────────╯
+
+retry.js:25
+Accuracy:   ███████████████████       79/100 · Mostly accurate
+Usefulness: ████████▎                 34/100 · Mostly redundant
+╭───────────────────────────────────────────────────────────────────────╮
+│ // Delay grows linearly: every retry adds another base interval.      │
+│ function backoffDelay(attempt, baseMs, maxMs, random = Math.random) { │
+╰───────────────────────────────────────────────────────────────────────╯
+
+retry.js:31
+Accuracy:   ███████████████████████▋  98/100 · Accurate without material errors
+Usefulness: ██▏                        9/100 · No useful information
+╭───────────────────────────────────────────────────╮
+│ // Wait for the requested number of milliseconds. │
+│ function sleep(milliseconds) {                    │
+╰───────────────────────────────────────────────────╯
+
+retry.js:36-39
+Accuracy:   ██████████████████████▌   94/100 · Accurate without material errors
+Usefulness: ████████████▊             53/100 · Explains non-obvious behavior
+╭─────────────────────────────────────────────────────────────────────────────────╮
+│ /**                                                                             │
+│  * Fetch a JSON resource, retrying transient HTTP responses and network errors. │
+│  * maxAttempts includes the first request, not just retries.                    │
+│  */                                                                             │
+│ async function fetchJson(url, options = {}) {                                   │
+╰─────────────────────────────────────────────────────────────────────────────────╯
+
+retry.js:51
+Accuracy:   ███████████████████████▋  98/100 · Accurate without material errors
+Usefulness: ██▊                       12/100 · No useful information
+╭──────────────────────────────────────────────────────────╮
+│ // Validate maxAttempts.                                 │
+│ if (!Number.isInteger(maxAttempts) || maxAttempts < 1) { │
+╰──────────────────────────────────────────────────────────╯
+
+retry.js:59
+Accuracy:   █████████████████████▋    90/100 · Accurate without material errors
+Usefulness: ███████████████           63/100 · Explains non-obvious behavior
+╭───────────────────────────────────────────────────────────────────────────────────╮
+│ // All failures, including malformed JSON and authentication errors, are retried. │
+│ for (let attempt = 0; attempt < maxAttempts; attempt += 1) {                      │
+╰───────────────────────────────────────────────────────────────────────────────────╯
+
+retry.js:70-71
+Accuracy:   ██████████████████████▏   92/100 · Accurate without material errors
+Usefulness: ████████████████          67/100 · Explains non-obvious behavior
+╭────────────────────────────────────────────────────────────────────────────────╮
+│ // Parsing stays outside the network-error catch: a broken payload won't       │
+│ // become valid merely because we download the same successful response again. │
+│ if (response.ok) return await response.json();                                 │
+╰────────────────────────────────────────────────────────────────────────────────╯
+
+retry.js:74-75
+Accuracy:   ███████████████████████▎  97/100 · Accurate without material errors
+Usefulness: ███████████████▌          65/100 · Explains non-obvious behavior
+╭─────────────────────────────────────────────────────────────────────────╮
+│ // Keep the status on the error so callers can distinguish a missing    │
+│ // resource from an outage without parsing a human-readable message.    │
+│ const error = new Error(`Request failed with HTTP ${response.status}`); │
+╰─────────────────────────────────────────────────────────────────────────╯
+
+retry.js:79-80
+Accuracy:   ███████████████████████▎  97/100 · Accurate without material errors
+Usefulness: ███████████████           63/100 · Explains non-obvious behavior
+╭─────────────────────────────────────────────────────────────────────────────╮
+│ // Release an unread response before the next attempt so pooled connections │
+│ // do not stay occupied by bodies this caller will never consume.           │
+│ await response.body?.cancel();                                              │
+╰─────────────────────────────────────────────────────────────────────────────╯
+
+retry.js:87-90
+Accuracy:   █████████████████▌        73/100 · Mostly accurate
+Usefulness: ███████████████████████▋  99/100 · Important rationale or context
+╭─────────────────────────────────────────────────────────────────────────────────╮
+│ /*                                                                              │
+│  * The partner gateway's 2021 migration introduced Retry-After on 503s.         │
+│  * Honor that hint as well as 429s; its maintenance windows outlast backoff.    │
+│  */                                                                             │
+│ const retryAfter = parseRetryAfter(response.headers.get("retry-after"), now()); │
+╰─────────────────────────────────────────────────────────────────────────────────╯
+
+retry.js:94
+Accuracy:   ███████████████████▎      80/100 · Mostly accurate
+Usefulness: ███████████               46/100 · Mostly redundant
+╭───────────────────────────────────────────────────────────────────────────────╮
+│ // The configured maximum caps every sleep, including server-provided delays. │
+│ await wait(delay);                                                            │
+╰───────────────────────────────────────────────────────────────────────────────╯
+
+retry.js:99
+Accuracy:   ██████████████████████▏   92/100 · Accurate without material errors
+Usefulness: █████████                 38/100 · Mostly redundant
+╭───────────────────────────────────────────────────────────────────────╮
+│ // This endpoint string contains // but is not itself a code comment. │
+│ const exampleEndpoint = "https://api.example.test/items";             │
+╰───────────────────────────────────────────────────────────────────────╯
+
