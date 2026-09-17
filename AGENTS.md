@@ -1,1 +1,1 @@
-Use the `typesafe-ai` skill when working on this repo.
+Use the `typesafe-ai` skill when writing to or editing .rs files.
