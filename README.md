@@ -236,8 +236,8 @@ tone scale:
 After a **50ms pause in typing**, the current text is sent as one Score question.
 Its weighted 0–4 score positions the icon on a green-to-red bar. Old responses
 cannot overwrite newer text's score. The last score remains visible while editing;
-empty input clears the marker and score text and is not scored. Cost is reported
-on exit and counts completed requests, including superseded ones.
+empty input clears the marker and score text and is not scored. With `--cost`,
+the exit summary counts completed requests, including superseded ones.
 Nerd Font icons render best with a Nerd Font terminal font; text labels are also
 shown.
 
@@ -247,9 +247,9 @@ Use arrow keys or **Ctrl-B/F** to move, **Home/End** or **Ctrl-A/E** for start/e
 are converted to spaces. **F1** shows editing help, **Esc** closes help, and
 **Ctrl-C** quits. Ordinary `q`, `j`, and `?` remain text input.
 
-Exiting restores the terminal and prints the cost summary to stderr. If requests
-are still in flight on exit, their costs are reported as unknown rather than
-blocking terminal exit. `NO_COLOR` disables the color scale.
+Exiting restores the terminal. When `--cost` is set, the summary is printed to
+stderr; requests still in flight are reported as unknown rather than blocking
+terminal exit. `NO_COLOR` disables the color scale.
 
 ## Business and occupation classification
 
@@ -285,12 +285,20 @@ in [`data/README.md`](data/README.md).
 
 ## Configuration
 
-All commands print one cost summary to **stderr** when finished, for example:
+Pass the global `--cost` flag before or after any subcommand to print one cost
+summary to **stderr** when finished, for example:
+
+```sh
+typesafe-ai --cost phi patient-notes.txt
+typesafe-ai phi patient-notes.txt --cost
+```
 
 ```text
 Cost: 0.0042¢
 Tokens: 1000
 ```
+
+Without `--cost`, no cost or token summary is printed.
 
 Cost is calculated from the API's `usage.input_tokens` at **$0.042 per million
 input tokens** (4.2 US pennies per million). Output tokens are free. Input usage

@@ -63,6 +63,7 @@ fn openrouter_key_uses_decisions_api_and_openrouter_model_name() {
         String::from_utf8_lossy(&output.stdout),
         phi_output(0.5, "-")
     );
+    assert!(output.stderr.is_empty());
 }
 
 #[test]
@@ -101,6 +102,7 @@ fn load_bearing_batches_lines_and_launches_files_concurrently() {
         }
     });
     let output = command()
+        .arg("--cost")
         .arg("load-bearing")
         .arg(directory.path())
         .env("TYPESAFE_API_KEY", "test-key")
@@ -138,10 +140,7 @@ fn load_bearing_skips_short_lines_without_credentials() {
     assert!(output.status.success(), "{:?}", output);
     let record: Value = serde_json::from_slice(&output.stdout).unwrap();
     assert_eq!(record["score"], json!({}));
-    assert_eq!(
-        String::from_utf8_lossy(&output.stderr),
-        "Cost: 0.0000¢\nTokens: 0\n"
-    );
+    assert!(output.stderr.is_empty());
 }
 
 fn score(args: &[&str], text: &str, response: Value, status: u16) -> Output {
@@ -183,6 +182,7 @@ fn score(args: &[&str], text: &str, response: Value, status: u16) -> Output {
     });
     let mut child = command()
         .args(args)
+        .arg("--cost")
         .env("TYPESAFE_API_KEY", "test-key")
         .env("TYPESAFE_ENDPOINT", endpoint)
         .stdin(Stdio::piped())
@@ -301,6 +301,7 @@ fn directory_scans_files_with_colors_and_continues_after_errors() {
         }
     });
     let output = command()
+        .arg("--cost")
         .arg("phi")
         .arg(directory.path())
         .env("TYPESAFE_API_KEY", "test-key")
@@ -368,6 +369,7 @@ fn phi_launches_all_requests_and_streams_completed_results_before_slower_files()
     let server = tiny_http::Server::http("127.0.0.1:0").unwrap();
     let mut child = command()
         .arg("phi")
+        .arg("--cost")
         .arg(directory.path())
         .env("TYPESAFE_API_KEY", "test-key")
         .env(
@@ -536,7 +538,7 @@ fn code_comments_batch_two_questions_per_span_for_file_directory_and_stdin() {
                 .unwrap();
         });
         let mut command = command();
-        command.args(["code-comments", "--model", "test-model"]);
+        command.args(["code-comments", "--model", "test-model", "--cost"]);
         match mode {
             "file" => {
                 command.arg(&file);
@@ -604,10 +606,7 @@ fn comment_free_files_need_no_api_key() {
         .unwrap();
     assert!(output.status.success(), "{output:?}");
     assert!(output.stdout.is_empty());
-    assert_eq!(
-        String::from_utf8_lossy(&output.stderr),
-        "Cost: 0.0000¢\nTokens: 0\n"
-    );
+    assert!(output.stderr.is_empty());
 }
 
 #[test]
@@ -643,6 +642,7 @@ fn code_comments_reject_invalid_scores_without_partial_output() {
         });
         let output = command()
             .arg("code-comments")
+            .arg("--cost")
             .arg(file.path())
             .env("TYPESAFE_API_KEY", "test-key")
             .env("TYPESAFE_ENDPOINT", endpoint)

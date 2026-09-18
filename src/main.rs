@@ -21,6 +21,10 @@ use typesafe::{Answer, Client};
 #[derive(Cli)]
 #[usage(bin = "typesafe-ai", version = "0.1.0", unknown_flags = "error")]
 struct Cli {
+    /// Print API cost and input-token totals to stderr.
+    #[usage(long, global)]
+    cost: bool,
+
     #[usage(subcommand)]
     command: Commands,
 }
@@ -264,6 +268,7 @@ fn run(cli: Cli, cost: &Cost) -> Result<()> {
 
 fn main() -> ExitCode {
     let cli = Cli::parse();
+    let show_cost = cli.cost;
     let cost = Cost::default();
     let exit = match run(cli, &cost) {
         Ok(()) => ExitCode::SUCCESS,
@@ -279,6 +284,8 @@ fn main() -> ExitCode {
             }
         }
     };
-    eprintln!("{}", cost.summary());
+    if show_cost {
+        eprintln!("{}", cost.summary());
+    }
     exit
 }
