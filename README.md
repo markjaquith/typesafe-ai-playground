@@ -11,8 +11,11 @@ interactive tone analysis, and business and occupation classification.
 
 ```sh
 cargo install --path . --locked
-export TYPESAFE_API_KEY='your-api-key'
+export OPENROUTER_API_KEY='your-openrouter-api-key'
 ```
+
+Alternatively, set `TYPESAFE_API_KEY` to call TypeSafe directly. If both keys
+are set, `OPENROUTER_API_KEY` takes precedence.
 
 ## Usage
 
@@ -36,23 +39,53 @@ each result printed and flushed immediately in completion order. Each file is
 evaluated separately. A failed file is reported on stderr; scanning continues and the command
 exits nonzero if any files failed. An empty directory produces no output.
 
-Successful output is one line per file: the Noul value followed by its base name
-(stdin uses `-`), for example:
+Successful output is four independently judged Noul metrics per file. Each line
+contains the probability and metric. File scans append the base name; standard
+input has no filename suffix:
 
 ```text
-0.97 patient-notes.txt
-0.08 general-advice.txt
+0.98 identifying information patient-notes.txt
+0.96 health condition patient-notes.txt
+0.84 healthcare provision patient-notes.txt
+0.03 healthcare payment patient-notes.txt
 ```
+
+The metrics mirror the independent elements in 45 CFR § 160.103:
+
+- **Individually identifying information:** the text identifies a natural person
+  or provides a reasonable basis to identify them. Its rubric covers HIPAA's
+  direct and indirect Safe Harbor identifier categories, combinations of details,
+  and identifiers of relatives, household members, and employers.
+- **Health condition:** the text actually relates to an individual's past,
+  present, or future physical or mental health or condition.
+- **Healthcare provision:** the text actually relates to health care sought,
+  offered, scheduled, provided, declined, or expected for an individual.
+- **Healthcare payment:** the text actually relates to past, present, or future
+  payment for health care provided or to be provided to an individual.
+
+Each health nexus is judged separately from identifiability. General medical
+education, aggregate statistics, provider listings, and a person's visit to a
+health-related public webpage do not establish that the topic relates to that
+person's own health or care. This follows the conjunctive reading in *American
+Hospital Association v. Becerra*, No. 4:23-cv-01110-P (N.D. Tex. June 20,
+2024): identifiability and at least one actual health nexus must both be present;
+unstated subjective intent is not enough.
+
+The command does not combine the metrics into a legal conclusion. HIPAA PHI
+status also depends on facts text alone may not establish, including who created
+or received the information, whether the holder is a covered entity or business
+associate, regulatory exclusions, and whether a valid Safe Harbor or Expert
+Determination de-identification process was completed. Treat these scores as
+screening signals, not legal advice.
+
+Rubrics are based on [45 CFR § 160.103](https://www.law.cornell.edu/cfr/text/45/160.103),
+[45 CFR § 164.514](https://www.law.cornell.edu/cfr/text/45/164.514), HHS's
+[de-identification guidance](https://www.hhs.gov/hipaa/for-professionals/special-topics/de-identification/index.html),
+and the [2013 HIPAA omnibus rule compilation](https://www.hhs.gov/sites/default/files/ocr/privacy/hipaa/administrative/combined/hipaa-simplification-201303.pdf).
 
 Only the Noul value is colored: **red below 0.2**, **green at or above 0.2**.
 Colors are enabled on a terminal and omitted when piping or redirecting output.
 Set `CLICOLOR_FORCE=1` to force colors, or `NO_COLOR=1` to disable them.
-
-`noul` is the probability from 0 to 1 that the input contains PHI. It is returned
-directly from the model without rounding or thresholding. This command defines
-PHI as health, healthcare, or healthcare-payment information linked to an
-identified or reasonably identifiable person. General medical discussion,
-de-identified statistics, and identifiers alone do not qualify.
 
 ## Code comment review
 
@@ -256,24 +289,32 @@ All commands print one cost summary to **stderr** when finished, for example:
 
 ```text
 Cost: 0.0042¢
+Tokens: 1000
 ```
 
 Cost is calculated from the API's `usage.input_tokens` at **$0.042 per million
 input tokens** (4.2 US pennies per million). Output tokens are free. Input usage
 is summed across all requests, including concurrent files and any retry responses
 that report usage, then rounded once to four decimal places. A batched comment
-request is counted once, not once per question. No queries means `Cost: 0.0000¢`.
+request is counted once, not once per question. No queries means `Cost: 0.0000¢`
+and `Tokens: 0`.
 
 The documented API provides token counts rather than a monetary cost field.
 If a request's usage is missing (including a failed request without usage), the
-summary reports the total as unavailable and shows the known cost separately.
+summary reports the totals as unavailable and shows the known cost and token
+count separately.
 Normal results remain on stdout.
 
 | Environment variable | Purpose | Default |
 | --- | --- | --- |
-| `TYPESAFE_API_KEY` | Required API key | — |
+| `OPENROUTER_API_KEY` | OpenRouter API key; takes precedence when set | — |
+| `TYPESAFE_API_KEY` | TypeSafe API key used when no OpenRouter key is set | — |
 | `TYPESAFE_MODEL` | Model; overridden by `--model` | `jev-latest` |
+| `OPENROUTER_ENDPOINT` | Full OpenRouter Decisions endpoint URL | `https://openrouter.ai/api/alpha/decisions` |
 | `TYPESAFE_ENDPOINT` | Full evaluation endpoint URL | `https://api.typesafe.ai/v1/systemone` |
+
+For OpenRouter requests, `jev-latest` is sent as `typesafe/jev-1.13`; bare
+versioned names such as `jev-1.13` are prefixed with `typesafe/`.
 
 Errors go to stderr with a nonzero exit status (1 for input/API errors, 2 for
 argument errors). Rate-limit and overload responses receive up to two retries

@@ -19,18 +19,18 @@ mod tests {
     #[test]
     fn totals_input_tokens_only_and_rounds_once() {
         let cost = Cost::default();
-        assert_eq!(cost.summary(), "Cost: 0.0000¢");
+        assert_eq!(cost.summary(), "Cost: 0.0000¢\nTokens: 0");
         cost.record(Some(
             &json!({"usage": {"input_tokens": 6, "output_tokens": 1_000_000}}),
         ));
         cost.clone()
             .record(Some(&json!({"usage": {"input_tokens": 6}})));
-        assert_eq!(cost.summary(), "Cost: 0.0001¢");
+        assert_eq!(cost.summary(), "Cost: 0.0001¢\nTokens: 12");
         let million = Cost::default();
         million.record(Some(
             &json!({"usage": {"input_tokens": 1_000_000, "output_tokens": 500_000}}),
         ));
-        assert_eq!(million.summary(), "Cost: 4.2000¢");
+        assert_eq!(million.summary(), "Cost: 4.2000¢\nTokens: 1000000");
     }
 
     #[test]
@@ -41,7 +41,8 @@ mod tests {
         cost.record(Some(&json!({"usage": {"output_tokens": 10}})));
         assert_eq!(
             cost.summary(),
-            "Cost: unavailable (known cost: 0.0042¢; token usage missing for 2 request(s))"
+            "Cost: unavailable (known cost: 0.0042¢; token usage missing for 2 request(s))\n\
+             Tokens: unavailable (known tokens: 1000; usage missing for 2 request(s))"
         );
     }
 }
@@ -78,11 +79,13 @@ impl Cost {
         let units = (totals.tokens * 42 + 500) / 1000;
         let pennies = format!("{}.{:04}", units / 10_000, units % 10_000);
         if totals.missing_usage == 0 {
-            format!("Cost: {pennies}¢")
+            format!("Cost: {pennies}¢\nTokens: {}", totals.tokens)
         } else {
             format!(
-                "Cost: unavailable (known cost: {pennies}¢; token usage missing for {} request(s))",
-                totals.missing_usage
+                "Cost: unavailable (known cost: {pennies}¢; token usage missing for {missing} request(s))\n\
+                 Tokens: unavailable (known tokens: {tokens}; usage missing for {missing} request(s))",
+                missing = totals.missing_usage,
+                tokens = totals.tokens,
             )
         }
     }

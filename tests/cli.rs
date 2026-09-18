@@ -13,9 +13,56 @@ fn command() -> Command {
         .env_remove("TYPESAFE_MODEL")
         .env_remove("CLICOLOR_FORCE")
         .env("NO_COLOR", "1")
+        .env_remove("OPENROUTER_API_KEY")
+        .env_remove("OPENROUTER_ENDPOINT")
         .env_remove("TYPESAFE_API_KEY")
         .env_remove("TYPESAFE_ENDPOINT");
     command
+}
+
+#[test]
+fn openrouter_key_uses_decisions_api_and_openrouter_model_name() {
+    let server = tiny_http::Server::http("127.0.0.1:0").unwrap();
+    let endpoint = format!("http://{}/api/alpha/decisions", server.server_addr());
+    let worker = thread::spawn(move || {
+        let mut request = server
+            .recv_timeout(Duration::from_secs(10))
+            .unwrap()
+            .expect("CLI should send an OpenRouter request");
+        assert_eq!(request.url(), "/api/alpha/decisions");
+        assert!(request.headers().iter().any(|header| {
+            header.field.equiv("Authorization") && header.value.as_str() == "Bearer openrouter-key"
+        }));
+        let body: Value = serde_json::from_reader(request.as_reader()).unwrap();
+        assert_eq!(body["model"], "typesafe/jev-1.13");
+        request
+            .respond(tiny_http::Response::from_string(answer(0.5).to_string()))
+            .unwrap();
+    });
+    let mut child = command()
+        .arg("phi")
+        .env("OPENROUTER_API_KEY", "openrouter-key")
+        .env("OPENROUTER_ENDPOINT", endpoint)
+        .env("TYPESAFE_API_KEY", "unused-typesafe-key")
+        .env("TYPESAFE_ENDPOINT", "http://127.0.0.1:1/unused")
+        .stdin(Stdio::piped())
+        .stdout(Stdio::piped())
+        .stderr(Stdio::piped())
+        .spawn()
+        .unwrap();
+    child
+        .stdin
+        .take()
+        .unwrap()
+        .write_all(b"Sample text")
+        .unwrap();
+    let output = child.wait_with_output().unwrap();
+    worker.join().unwrap();
+    assert!(output.status.success(), "{output:?}");
+    assert_eq!(
+        String::from_utf8_lossy(&output.stdout),
+        phi_output(0.5, "-")
+    );
 }
 
 #[test]
@@ -73,7 +120,10 @@ fn load_bearing_batches_lines_and_launches_files_concurrently() {
         assert_eq!(record["source"], source);
         assert_eq!(record["score"], json!({"3": 1.0, "4": 0.5}));
     }
-    assert_eq!(String::from_utf8_lossy(&output.stderr), "Cost: 0.0084¢\n");
+    assert_eq!(
+        String::from_utf8_lossy(&output.stderr),
+        "Cost: 0.0084¢\nTokens: 2000\n"
+    );
 }
 
 #[test]
@@ -88,7 +138,10 @@ fn load_bearing_skips_short_lines_without_credentials() {
     assert!(output.status.success(), "{:?}", output);
     let record: Value = serde_json::from_slice(&output.stdout).unwrap();
     assert_eq!(record["score"], json!({}));
-    assert_eq!(String::from_utf8_lossy(&output.stderr), "Cost: 0.0000¢\n");
+    assert_eq!(
+        String::from_utf8_lossy(&output.stderr),
+        "Cost: 0.0000¢\nTokens: 0\n"
+    );
 }
 
 fn score(args: &[&str], text: &str, response: Value, status: u16) -> Output {
@@ -108,7 +161,16 @@ fn score(args: &[&str], text: &str, response: Value, status: u16) -> Output {
         let body: Value = serde_json::from_reader(request.as_reader()).unwrap();
         assert_eq!(body["state"]["text"], expected_text);
         assert_eq!(body["model"], "jev-latest");
-        assert_eq!(body["questions"]["phi"]["type"], "noul");
+        for metric in [
+            "identifiability",
+            "health_condition",
+            "healthcare_provision",
+            "healthcare_payment",
+        ] {
+            assert_eq!(body["questions"][metric]["type"], "noul");
+            assert!(body["questions"][metric]["criteria"]["true"].is_string());
+            assert!(body["questions"][metric]["criteria"]["false"].is_string());
+        }
         request
             .respond(
                 tiny_http::Response::from_string(response.to_string())
@@ -140,7 +202,35 @@ fn score(args: &[&str], text: &str, response: Value, status: u16) -> Output {
 }
 
 fn answer(value: f64) -> Value {
-    json!({"answers": {"phi": {"type": "noul", "noul": value}}, "usage": {"input_tokens": 1000, "output_tokens": 9000}})
+    json!({"answers": phi_answers(value), "usage": {"input_tokens": 1000, "output_tokens": 9000}})
+}
+
+fn phi_answers(value: f64) -> Value {
+    json!({
+        "identifiability": {"type": "noul", "noul": value},
+        "health_condition": {"type": "noul", "noul": value},
+        "healthcare_provision": {"type": "noul", "noul": value},
+        "healthcare_payment": {"type": "noul", "noul": value}
+    })
+}
+
+const PHI_LABELS: [&str; 4] = [
+    "identifying information",
+    "health condition",
+    "healthcare provision",
+    "healthcare payment",
+];
+
+fn phi_output(value: f64, name: &str) -> String {
+    let source = if name == "-" {
+        String::new()
+    } else {
+        format!(" {name}")
+    };
+    PHI_LABELS
+        .iter()
+        .map(|metric| format!("{value:.2} {metric}{source}\n"))
+        .collect()
 }
 
 #[test]
@@ -148,8 +238,14 @@ fn stdin_and_explicit_dash_return_noul_and_name() {
     for args in [vec!["phi"], vec!["phi", "-"]] {
         let output = score(&args, "Jane Doe has diabetes.\n", answer(0.97), 200);
         assert!(output.status.success(), "{:?}", output);
-        assert_eq!(String::from_utf8_lossy(&output.stderr), "Cost: 0.0042¢\n");
-        assert_eq!(String::from_utf8(output.stdout).unwrap(), "0.97 -\n");
+        assert_eq!(
+            String::from_utf8_lossy(&output.stderr),
+            "Cost: 0.0042¢\nTokens: 1000\n"
+        );
+        assert_eq!(
+            String::from_utf8(output.stdout).unwrap(),
+            phi_output(0.97, "-")
+        );
     }
 }
 
@@ -167,10 +263,7 @@ fn file_input_is_sent_verbatim() {
     assert!(output.status.success(), "{:?}", output);
     assert_eq!(
         String::from_utf8(output.stdout).unwrap(),
-        format!(
-            "0.02 {}\n",
-            file.path().file_name().unwrap().to_str().unwrap()
-        )
+        phi_output(0.02, file.path().file_name().unwrap().to_str().unwrap())
     );
 }
 
@@ -219,25 +312,30 @@ fn directory_scans_files_with_colors_and_continues_after_errors() {
     worker.join().unwrap();
     assert_eq!(output.status.code(), Some(1));
     let output_text = String::from_utf8(output.stdout).unwrap();
-    let mut lines: Vec<_> = output_text.lines().collect();
+    let mut lines: Vec<_> = output_text.lines().map(str::to_owned).collect();
     lines.sort();
-    let mut expected = vec![
-        "\x1b[1;31m0.1\x1b[0m a.txt",
-        "\x1b[1;32m0.2\x1b[0m b.txt",
-        "\x1b[1;32m0.97\x1b[0m c.txt",
-        "\x1b[1;31m0\x1b[0m z.txt",
-    ];
+    let mut expected = Vec::new();
+    for (value, code, name) in [
+        (0.1, 31, "a.txt"),
+        (0.2, 32, "b.txt"),
+        (0.97, 32, "c.txt"),
+        (0.0, 31, "z.txt"),
+    ] {
+        for metric in PHI_LABELS {
+            expected.push(format!("\x1b[1;{code}m{value:.2}\x1b[0m {metric} {name}"));
+        }
+    }
     expected.sort();
     assert_eq!(lines, expected);
     assert!(String::from_utf8_lossy(&output.stderr).contains("empty.txt: input text is empty"));
-    assert!(String::from_utf8_lossy(&output.stderr).ends_with("Cost: 0.0168¢\n"));
+    assert!(String::from_utf8_lossy(&output.stderr).ends_with("Cost: 0.0168¢\nTokens: 4000\n"));
 }
 
 #[test]
 fn usage_is_counted_even_when_the_answer_is_invalid() {
     let output = score(&["phi"], "Sample text", answer(1.1), 200);
     assert!(!output.status.success());
-    assert!(String::from_utf8_lossy(&output.stderr).ends_with("Cost: 0.0042¢\n"));
+    assert!(String::from_utf8_lossy(&output.stderr).ends_with("Cost: 0.0042¢\nTokens: 1000\n"));
 }
 
 #[test]
@@ -245,14 +343,18 @@ fn missing_usage_preserves_answers_but_reports_unknown_cost() {
     let output = score(
         &["phi"],
         "Sample text",
-        json!({"answers": {"phi": {"type": "noul", "noul": 0.7}}}),
+        json!({"answers": phi_answers(0.7)}),
         200,
     );
     assert!(output.status.success());
-    assert_eq!(String::from_utf8_lossy(&output.stdout), "0.7 -\n");
+    assert_eq!(
+        String::from_utf8_lossy(&output.stdout),
+        phi_output(0.7, "-")
+    );
     assert_eq!(
         String::from_utf8_lossy(&output.stderr),
-        "Cost: unavailable (known cost: 0.0000¢; token usage missing for 1 request(s))\n"
+        "Cost: unavailable (known cost: 0.0000¢; token usage missing for 1 request(s))\n\
+         Tokens: unavailable (known tokens: 0; usage missing for 1 request(s))\n"
     );
 }
 
@@ -301,17 +403,22 @@ fn phi_launches_all_requests_and_streams_completed_results_before_slower_files()
             .unwrap()
             .respond(tiny_http::Response::from_string(answer(0.7).to_string()))
             .unwrap();
-        assert_eq!(
-            receiver
-                .recv_timeout(Duration::from_secs(10))
-                .expect("result must flush immediately"),
-            format!("0.7 {name}")
-        );
+        for metric in PHI_LABELS {
+            assert_eq!(
+                receiver
+                    .recv_timeout(Duration::from_secs(10))
+                    .expect("result must flush immediately"),
+                format!("0.70 {metric} {name}")
+            );
+        }
     }
     let output = child.wait_with_output().unwrap();
     reader.join().unwrap();
     assert!(output.status.success(), "{output:?}");
-    assert_eq!(String::from_utf8_lossy(&output.stderr), "Cost: 0.0126¢\n");
+    assert_eq!(
+        String::from_utf8_lossy(&output.stderr),
+        "Cost: 0.0126¢\nTokens: 3000\n"
+    );
 }
 
 #[test]
@@ -350,7 +457,10 @@ fn input_and_auth_errors_are_actionable() {
     std::fs::write(&file, "Some text").unwrap();
     let no_key = command().arg("phi").arg(&file).output().unwrap();
     assert!(!no_key.status.success());
-    assert!(String::from_utf8_lossy(&no_key.stderr).contains("set TYPESAFE_API_KEY"));
+    assert!(
+        String::from_utf8_lossy(&no_key.stderr)
+            .contains("set OPENROUTER_API_KEY or TYPESAFE_API_KEY")
+    );
 }
 
 #[test]
@@ -456,7 +566,10 @@ fn code_comments_batch_two_questions_per_span_for_file_directory_and_stdin() {
         let output = child.wait_with_output().unwrap();
         worker.join().unwrap();
         assert!(output.status.success(), "{output:?}");
-        assert_eq!(String::from_utf8_lossy(&output.stderr), "Cost: 0.0042¢\n");
+        assert_eq!(
+            String::from_utf8_lossy(&output.stderr),
+            "Cost: 0.0042¢\nTokens: 1000\n"
+        );
         let text = String::from_utf8(output.stdout).unwrap();
         let name = if matches!(mode, "file" | "directory") {
             "example.ts"
@@ -491,7 +604,10 @@ fn comment_free_files_need_no_api_key() {
         .unwrap();
     assert!(output.status.success(), "{output:?}");
     assert!(output.stdout.is_empty());
-    assert_eq!(String::from_utf8_lossy(&output.stderr), "Cost: 0.0000¢\n");
+    assert_eq!(
+        String::from_utf8_lossy(&output.stderr),
+        "Cost: 0.0000¢\nTokens: 0\n"
+    );
 }
 
 #[test]
@@ -535,6 +651,6 @@ fn code_comments_reject_invalid_scores_without_partial_output() {
         worker.join().unwrap();
         assert_eq!(output.status.code(), Some(1));
         assert!(output.stdout.is_empty());
-        assert!(String::from_utf8_lossy(&output.stderr).ends_with("Cost: 0.0042¢\n"));
+        assert!(String::from_utf8_lossy(&output.stderr).ends_with("Cost: 0.0042¢\nTokens: 1000\n"));
     }
 }

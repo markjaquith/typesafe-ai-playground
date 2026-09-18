@@ -31,15 +31,38 @@ pub(crate) struct Client {
     http: reqwest::blocking::Client,
     endpoint: String,
     key: String,
+    provider: Provider,
+}
+
+#[derive(Clone, Copy)]
+enum Provider {
+    TypeSafe,
+    OpenRouter,
 }
 
 impl Client {
     pub(crate) fn from_env() -> Result<Self> {
-        let key = std::env::var("TYPESAFE_API_KEY")
-            .context("set TYPESAFE_API_KEY to your TypeSafe API key")?;
-        ensure!(!key.trim().is_empty(), "TYPESAFE_API_KEY is empty");
-        let endpoint = std::env::var("TYPESAFE_ENDPOINT")
-            .unwrap_or_else(|_| "https://api.typesafe.ai/v1/systemone".into());
+        let (provider, key, endpoint) = match std::env::var("OPENROUTER_API_KEY") {
+            Ok(key) => (
+                Provider::OpenRouter,
+                key,
+                std::env::var("OPENROUTER_ENDPOINT")
+                    .unwrap_or_else(|_| "https://openrouter.ai/api/alpha/decisions".into()),
+            ),
+            Err(std::env::VarError::NotPresent) => (
+                Provider::TypeSafe,
+                std::env::var("TYPESAFE_API_KEY")
+                    .context("set OPENROUTER_API_KEY or TYPESAFE_API_KEY to an API key")?,
+                std::env::var("TYPESAFE_ENDPOINT")
+                    .unwrap_or_else(|_| "https://api.typesafe.ai/v1/systemone".into()),
+            ),
+            Err(error) => return Err(error).context("could not read OPENROUTER_API_KEY"),
+        };
+        let key_name = match provider {
+            Provider::TypeSafe => "TYPESAFE_API_KEY",
+            Provider::OpenRouter => "OPENROUTER_API_KEY",
+        };
+        ensure!(!key.trim().is_empty(), "{key_name} is empty");
         let http = reqwest::blocking::Client::builder()
             .connect_timeout(Duration::from_secs(10))
             .timeout(Duration::from_secs(120))
@@ -50,6 +73,7 @@ impl Client {
             http,
             endpoint,
             key,
+            provider,
         })
     }
 
@@ -58,12 +82,18 @@ impl Client {
         body: &serde_json::Value,
         cost: &Cost,
     ) -> Result<HashMap<String, Answer>> {
+        let mut body = body.clone();
+        if matches!(self.provider, Provider::OpenRouter)
+            && let Some(model) = body["model"].as_str()
+        {
+            body["model"] = openrouter_model(model).into();
+        }
         for attempt in 0..3 {
             let response = self
                 .http
                 .post(&self.endpoint)
                 .bearer_auth(&self.key)
-                .json(body)
+                .json(&body)
                 .send()
                 .inspect_err(|_| cost.record(None))
                 .context("TypeSafe request failed")?;
@@ -76,7 +106,10 @@ impl Client {
             }
             if !status.is_success() {
                 let hint = match status.as_u16() {
-                    401 | 403 => "check TYPESAFE_API_KEY",
+                    401 | 403 => match self.provider {
+                        Provider::TypeSafe => "check TYPESAFE_API_KEY",
+                        Provider::OpenRouter => "check OPENROUTER_API_KEY",
+                    },
                     422 => "check the model and input size against the API limits",
                     429 | 529 => "service busy; try again later",
                     _ => "request was unsuccessful",
@@ -86,10 +119,18 @@ impl Client {
             let result: Response =
                 serde_json::from_value(payload.context("invalid TypeSafe response")?)
                     .context("invalid TypeSafe answer response")?;
-            validate_answers(body, &result.answers)?;
+            validate_answers(&body, &result.answers)?;
             return Ok(result.answers);
         }
         unreachable!("the final attempt returns a result")
+    }
+}
+
+fn openrouter_model(model: &str) -> String {
+    match model {
+        "jev-latest" => "typesafe/jev-1.13".into(),
+        model if model.starts_with("typesafe/") || model.starts_with("~typesafe/") => model.into(),
+        model => format!("typesafe/{model}"),
     }
 }
 
@@ -167,6 +208,13 @@ fn validate_answers(body: &serde_json::Value, answers: &HashMap<String, Answer>)
 mod tests {
     use super::*;
     use serde_json::json;
+
+    #[test]
+    fn maps_typesafe_model_names_for_openrouter() {
+        assert_eq!(openrouter_model("jev-latest"), "typesafe/jev-1.13");
+        assert_eq!(openrouter_model("jev-1.13"), "typesafe/jev-1.13");
+        assert_eq!(openrouter_model("typesafe/jev-1.13"), "typesafe/jev-1.13");
+    }
 
     #[test]
     fn choice_response_cannot_invent_codes_or_probabilities() {
