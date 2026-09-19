@@ -21,7 +21,7 @@ use typesafe::{Answer, Client};
 #[derive(Cli)]
 #[usage(bin = "typesafe-ai", version = "0.1.0", unknown_flags = "error")]
 struct Cli {
-    /// Print API cost and input-token totals to stderr.
+    /// Print API cost, input-token totals, and estimated Luna cost to stderr.
     #[usage(long, global)]
     cost: bool,
 

@@ -124,7 +124,7 @@ fn load_bearing_batches_lines_and_launches_files_concurrently() {
     }
     assert_eq!(
         String::from_utf8_lossy(&output.stderr),
-        "Cost: 0.0084¢\nTokens: 2000\n"
+        "Cost: 0.0084¢\nTokens: 2000\nLuna Cost: 0.0453¢ (5.4× Jev)\n"
     );
 }
 
@@ -240,7 +240,7 @@ fn stdin_and_explicit_dash_return_noul_and_name() {
         assert!(output.status.success(), "{:?}", output);
         assert_eq!(
             String::from_utf8_lossy(&output.stderr),
-            "Cost: 0.0042¢\nTokens: 1000\n"
+            "Cost: 0.0042¢\nTokens: 1000\nLuna Cost: 0.0282¢ (6.7× Jev)\n"
         );
         assert_eq!(
             String::from_utf8(output.stdout).unwrap(),
@@ -329,14 +329,20 @@ fn directory_scans_files_with_colors_and_continues_after_errors() {
     expected.sort();
     assert_eq!(lines, expected);
     assert!(String::from_utf8_lossy(&output.stderr).contains("empty.txt: input text is empty"));
-    assert!(String::from_utf8_lossy(&output.stderr).ends_with("Cost: 0.0168¢\nTokens: 4000\n"));
+    assert!(
+        String::from_utf8_lossy(&output.stderr)
+            .contains("Cost: 0.0168¢\nTokens: 4000\nLuna Cost: ")
+    );
 }
 
 #[test]
 fn usage_is_counted_even_when_the_answer_is_invalid() {
     let output = score(&["phi"], "Sample text", answer(1.1), 200);
     assert!(!output.status.success());
-    assert!(String::from_utf8_lossy(&output.stderr).ends_with("Cost: 0.0042¢\nTokens: 1000\n"));
+    assert!(
+        String::from_utf8_lossy(&output.stderr)
+            .ends_with("Cost: 0.0042¢\nTokens: 1000\nLuna Cost: 0.0282¢ (6.7× Jev)\n")
+    );
 }
 
 #[test]
@@ -355,7 +361,8 @@ fn missing_usage_preserves_answers_but_reports_unknown_cost() {
     assert_eq!(
         String::from_utf8_lossy(&output.stderr),
         "Cost: unavailable (known cost: 0.0000¢; token usage missing for 1 request(s))\n\
-         Tokens: unavailable (known tokens: 0; usage missing for 1 request(s))\n"
+         Tokens: unavailable (known tokens: 0; usage missing for 1 request(s))\n\
+         Luna Cost: unavailable (known cost: 0.0000¢; input usage or answers missing for 1 request(s))\n"
     );
 }
 
@@ -419,7 +426,7 @@ fn phi_launches_all_requests_and_streams_completed_results_before_slower_files()
     assert!(output.status.success(), "{output:?}");
     assert_eq!(
         String::from_utf8_lossy(&output.stderr),
-        "Cost: 0.0126¢\nTokens: 3000\n"
+        "Cost: 0.0126¢\nTokens: 3000\nLuna Cost: 0.0845¢ (6.7× Jev)\n"
     );
 }
 
@@ -570,7 +577,7 @@ fn code_comments_batch_two_questions_per_span_for_file_directory_and_stdin() {
         assert!(output.status.success(), "{output:?}");
         assert_eq!(
             String::from_utf8_lossy(&output.stderr),
-            "Cost: 0.0042¢\nTokens: 1000\n"
+            "Cost: 0.0042¢\nTokens: 1000\nLuna Cost: 0.0313¢ (7.4× Jev)\n"
         );
         let text = String::from_utf8(output.stdout).unwrap();
         let name = if matches!(mode, "file" | "directory") {
@@ -651,6 +658,9 @@ fn code_comments_reject_invalid_scores_without_partial_output() {
         worker.join().unwrap();
         assert_eq!(output.status.code(), Some(1));
         assert!(output.stdout.is_empty());
-        assert!(String::from_utf8_lossy(&output.stderr).ends_with("Cost: 0.0042¢\nTokens: 1000\n"));
+        assert!(
+            String::from_utf8_lossy(&output.stderr)
+                .contains("Cost: 0.0042¢\nTokens: 1000\nLuna Cost: ")
+        );
     }
 }

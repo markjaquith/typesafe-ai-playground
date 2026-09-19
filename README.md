@@ -296,6 +296,7 @@ typesafe-ai phi patient-notes.txt --cost
 ```text
 Cost: 0.0042¢
 Tokens: 1000
+Luna Cost: 0.0236¢ (5.6× Jev)
 ```
 
 Without `--cost`, no cost or token summary is printed.
@@ -306,6 +307,19 @@ is summed across all requests, including concurrent files and any retry response
 that report usage, then rounded once to four decimal places. A batched comment
 request is counted once, not once per question. No queries means `Cost: 0.0000¢`
 and `Tokens: 0`.
+
+`Luna Cost:` estimates the same workload at OpenAI GPT-5.6 Luna's standard
+[pricing](https://developers.openai.com/api/docs/models/gpt-5.6-luna) (checked
+September 19, 2026): **$0.20/M input tokens and $1.20/M output tokens**.
+It reuses Jev's reported input count and uses `tiktoken-rs`'s OpenAI `o200k_base`
+tokenizer on each compact `answers` JSON object, excluding response metadata.
+The example above assumes 30 output tokens. Requests above 272,000 input tokens
+use Luna's long-context rates ($0.40/M input, $1.80/M output). This is an
+estimate without caching, batch discounts, or additional reasoning tokens;
+it makes no OpenAI requests. Missing input usage or answers makes the Luna total
+unavailable, with the known subtotal shown. No queries means `Luna Cost: 0.0000¢`.
+The multiplier compares Luna to Jev using unrounded costs, displayed to one decimal
+place; it is omitted when Jev's cost is zero or either total is unavailable.
 
 The documented API provides token counts rather than a monetary cost field.
 If a request's usage is missing (including a failed request without usage), the
