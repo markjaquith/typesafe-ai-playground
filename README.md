@@ -101,13 +101,19 @@ comments (including JSDoc and JSX comments), avoiding comment-like text inside
 strings, regular expressions, and template literal text. Adjacent `//` lines
 are grouped into one comment. Line spans are 1-based and inclusive.
 
-Each file's full source and identified comments are sent in one TypeSafe request,
+Each file's full source is sent once in one TypeSafe request,
 with **two independent Score questions per comment**:
 
 - **Accuracy:** How accurately does the comment describe the following code? Inline
   comments also consider their associated code on the same line.
 - **Usefulness:** How much does it add useful understanding, explain non-obvious code, or
   capture historical or human reasons?
+
+The two question definitions and their rubric levels are supplied once in shared
+state. Per-comment instructions are compact calls such as `a(2,2)` (accuracy)
+and `b(2,2)` (usefulness), with inclusive 1-based line ranges. Each Score's
+required criteria array references the shared rubric levels. This notation is
+explained to Jev in state; it is not an API-level template or reference feature.
 
 Example output (bars are colored in terminals):
 
@@ -201,6 +207,8 @@ viewer. Files with no eligible lines need no
 API call. Empty files yield an empty score map. Source snapshots preserve the exact
 text that was evaluated, even if the files later change.
 
+Load-bearing likewise defines its question and five rubric levels once in shared
+state, with per-line instructions such as `a(3,3)` and short rubric references.
 Each eligible line gets its own Score question in a single batched request per
 file, sharing the full file as context. Questions run independently in parallel;
 all file requests launch concurrently. The five-level rubric runs from no runtime

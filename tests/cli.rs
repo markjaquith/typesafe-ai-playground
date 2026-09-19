@@ -86,14 +86,31 @@ fn load_bearing_batches_lines_and_launches_files_concurrently() {
             let body: Value = serde_json::from_reader(request.as_reader()).unwrap();
             assert_eq!(body["state"]["source"], source);
             assert_eq!(body["questions"].as_object().unwrap().len(), 2);
+            assert!(
+                body["state"]["definitions"]["a"]["instructions"]
+                    .as_str()
+                    .unwrap()
+                    .contains("runtime behavior")
+            );
+            assert_eq!(
+                body["state"]["definitions"]["a"]["criteria"]
+                    .as_array()
+                    .unwrap()
+                    .len(),
+                5
+            );
             for line in ["3", "4"] {
                 assert_eq!(body["questions"][line]["type"], "score");
-                assert!(
-                    body["questions"][line]["instructions"]
-                        .as_str()
-                        .unwrap()
-                        .contains(&format!("line {line}"))
+                assert_eq!(
+                    body["questions"][line]["instructions"],
+                    format!("a({line},{line})")
                 );
+                for level in 0..5 {
+                    assert_eq!(
+                        body["questions"][line]["criteria"][level],
+                        format!("`definitions.a.criteria[{level}]`")
+                    );
+                }
             }
             requests.push(request);
         }
@@ -514,24 +531,32 @@ fn code_comments_batch_two_questions_per_span_for_file_directory_and_stdin() {
             let body: Value = serde_json::from_reader(request.as_reader()).unwrap();
             assert_eq!(body["state"]["source"], source);
             assert_eq!(body["model"], "test-model");
-            let comments = body["state"]["comments"].as_array().unwrap();
-            assert_eq!(comments.len(), 2);
-            assert_eq!(comments[0]["start_line"], 1);
-            assert_eq!(comments[0]["end_line"], 2);
-            assert_eq!(comments[1]["start_line"], 4);
+            assert!(body["state"].get("comments").is_none());
+            for function in ["a", "b"] {
+                assert!(body["state"]["definitions"][function]["instructions"].is_string());
+                assert_eq!(
+                    body["state"]["definitions"][function]["criteria"]
+                        .as_array()
+                        .unwrap()
+                        .len(),
+                    4
+                );
+            }
             let questions = body["questions"].as_object().unwrap();
             assert_eq!(questions.len(), 4);
             let mut answers = serde_json::Map::new();
             for (id, question) in questions {
                 assert_eq!(question["type"], "score");
                 assert_eq!(question["criteria"].as_array().unwrap().len(), 4);
-                let index = if id.contains("_0_") { 0 } else { 1 };
-                assert!(
-                    question["instructions"]
-                        .as_str()
-                        .unwrap()
-                        .contains(&format!("comments[{index}].comment"))
-                );
+                let range = if id.contains("_0_") { "1,2" } else { "4,4" };
+                let function = if id.ends_with("accurate") { "a" } else { "b" };
+                assert_eq!(question["instructions"], format!("{function}({range})"));
+                for level in 0..4 {
+                    assert_eq!(
+                        question["criteria"][level],
+                        format!("`definitions.{function}.criteria[{level}]`")
+                    );
+                }
                 let value = if id.ends_with("accurate") { 2.37 } else { 0.24 };
                 answers.insert(
                     id.clone(),
