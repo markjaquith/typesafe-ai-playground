@@ -5,7 +5,8 @@ TypeSafe's System One model.
 
 The experiments live in a Rust CLI called `typesafe-ai`, built with
 [usage-rs](https://usage.jdx.dev/rust/): PHI detection, code-comment review,
-interactive tone analysis, and business and occupation classification.
+parts-of-speech and load-bearing analysis, interactive tone analysis, and
+business and occupation classification.
 
 ## Install
 
@@ -86,6 +87,147 @@ and the [2013 HIPAA omnibus rule compilation](https://www.hhs.gov/sites/default/
 Only the Noul value is colored: **red below 0.2**, **green at or above 0.2**.
 Colors are enabled on a terminal and omitted when piping or redirecting output.
 Set `CLICOLOR_FORCE=1` to force colors, or `NO_COLOR=1` to disable them.
+
+## Parts of speech
+
+```sh
+typesafe-ai parts-of-speech passage.txt --cost
+echo 'The sleepy cat is chasing birds, happily!' | typesafe-ai parts-of-speech
+typesafe-ai parts-of-speech - < passage.txt
+typesafe-ai parts-of-speech passage.txt --request | jq .
+```
+
+Analyzes **English word types and grammatical roles**, emitting one JSON object
+with nested `sentences` arrays. Accepts a UTF-8 file or stdin, `--model`, and the
+global `--cost` flag. `--request` prints the exact compact request JSON without
+calling an API or requiring credentials.
+
+The input text occurs **once**, as arrays of tokens in shared state:
+
+```json
+[["The","sleepy","cat","is","chasing","birds",",","happily","!"]]
+```
+
+Each word has two independent classifications, with unresolved ones sent as
+Choice questions in **one batched request**:
+
+- **`p` — word type:** 47 options covering common/proper and singular/plural nouns,
+  verb forms, participles, gerunds, auxiliaries, modals, copulas, imperatives,
+  adjective/adverb degrees, pronoun and determiner varieties, conjunctions,
+  prepositions, particles, numerals, interjections, contractions, and an other option.
+- **`r` — role:** 17 options including subject, direct/indirect/prepositional object,
+  complements, predicate verb, auxiliary, noun/adverbial modifiers, determiner,
+  connector, appositive, vocative, discourse element, dummy subject, and other.
+
+Question wording and option definitions live once in shared state. Individual
+instructions are just `p: sentences[0][2]` or `r: sentences[0][2]` (the actual
+request surrounds the path with backticks). Indices are **zero-based** and include
+punctuation. Jev requires each question's own Choice option map, so short mnemonic
+codes such as `NN`, `VBG`, and `SUBJ` repeat with `null` descriptions; the full
+definitions and target text do not repeat. The shared-definition convention is
+interpreted by the model, not a native API reference feature.
+
+Common function words are classified locally in their ordinary English usage:
+articles (`the`, `a`, `an`), conjunctions (`and`, `or`, `nor`), subject pronouns
+(`I`, `he`, `she`, `we`, `they`), and possessive determiners (`my`, `your`, `our`,
+`their`, `its`) need neither question. Other personal pronouns (`you`, `it`, `me`,
+`him`, `us`, `them`) and reflexive pronouns have a known word type but still need
+the role question. Ambiguous words such as `that`, `her`, `his`, `can`, and `to`
+keep both questions. Matching allows sentence capitalization; uppercase acronyms
+such as `US` and `IT` are left to Jev. These shortcuts assume ordinary usage,
+not quoted words being discussed as nouns or unusual names.
+
+Locally resolved words remain in the shared text at their original indices.
+Unused question definitions are omitted. Inputs that resolve entirely locally
+need no credentials and incur no API cost.
+
+Output tokens contain `text`, `part_of_speech`, `role`, and separate confidence
+values for the two judgments (`null` for any locally resolved axis, rather than
+an invented model confidence). For example, the token `cat` might be returned as:
+
+```json
+{
+  "text": "cat",
+  "part_of_speech": "common noun, singular or mass",
+  "role": "subject (head of a subject phrase)",
+  "confidence": {"part_of_speech": 0.99, "role": 0.98}
+}
+```
+
+Commas, periods, ellipses (`...` and `…`), exclamation/question marks, and other
+punctuation remain separate array members. They are labeled locally, with a null
+role and no model confidence, saving questions and tokens. Punctuation-only input
+requires no credentials. All model answers are checked before any result is emitted.
+
+Tokenization uses Unicode sentence/word boundaries, preserving spelling, case,
+contractions, and decimal numbers; consecutive periods form one ellipsis token.
+Whitespace is omitted. Sentence boundaries are heuristic (not a full grammatical
+parser), and abbreviations or unusual punctuation can affect segmentation.
+Contractions are classified as combined tokens rather than expanded into repeated
+text. Model labels are judgments, not guaranteed parses; confidence is included
+for ambiguous analyses. The entire input and question batch must fit the selected
+model's request limits.
+
+### Sentence viewer
+
+Start an interactive demo with no input file:
+
+```sh
+typesafe-ai parts-of-speech-serve
+# Open http://127.0.0.1:8231
+```
+
+Type or paste text into the freeform field and press **Parse** (or Ctrl/⌘+Enter).
+The results update in place, with a per-parse cost/token summary and Luna comparison.
+Parsing happens only on submission. While parsing, the form shows a busy state;
+errors preserve the text and previous results. Color and uncertainty settings
+carry over to newly parsed results.
+
+The server uses `OPENROUTER_API_KEY` or `TYPESAFE_API_KEY` from its own environment;
+credentials never enter the browser. `--model` / `TYPESAFE_MODEL` selects the model.
+Startup and entirely local classifications need no credentials. Requests that
+need Jev report missing credentials or API failures in the page. Parsing uses the
+same compact batching and local-word shortcuts as the CLI command.
+
+Save the analysis once, then explore it without further API calls:
+
+```sh
+typesafe-ai parts-of-speech passage.txt --cost > analysis.json
+typesafe-ai parts-of-speech-serve analysis.json
+# Open http://127.0.0.1:8231
+```
+
+Or pipe saved results directly (the viewer reads until EOF before starting):
+
+```sh
+typesafe-ai parts-of-speech passage.txt | typesafe-ai parts-of-speech-serve
+```
+
+Saved or piped results seed the viewer; the input field can then parse a new passage.
+With no file, terminal stdin or empty redirected stdin opens the empty demo.
+Explicit `-` still requires JSON on stdin.
+
+The responsive viewer arranges each sentence into colored word boxes with visible
+labels. Switch between **word type** and **grammatical role**, or highlight tokens
+where either model judgment has confidence below 60%. Hover, keyboard-focus, or
+tap a word to see both full labels, separate confidence values, and its sentence
+and token indices. Locally classified axes say “Local rule” rather than displaying
+a model confidence. Escape dismisses the tooltip. Punctuation is retained in the
+same reading order. “Fully local” counts tokens, including punctuation, for which
+neither axis has a model confidence.
+
+Use `--bind 127.0.0.1:9000` to change the address. Export a self-contained HTML page
+for opening directly or serving with any static web server:
+
+```sh
+typesafe-ai parts-of-speech-serve analysis.json --html > analysis.html
+```
+
+The HTML export is a read-only viewer of saved analysis; `--html` requires JSON
+input and hides the parsing form. It includes its CSS and JavaScript, requires no
+external assets or API keys, and escapes all input text and labels. Malformed
+saved JSON, empty sentences, and out-of-range confidence values are rejected
+before the server starts.
 
 ## Code comment review
 

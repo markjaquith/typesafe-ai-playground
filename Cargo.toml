@@ -21,6 +21,7 @@ syntect = "5"
 two-face = "0.5"
 tiny_http = "0.12"
 tiktoken-rs = "0.12"
+unicode-segmentation = "1.12"
 
 [dev-dependencies]
 scraper = "0.24"

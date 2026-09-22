@@ -1,0 +1,153 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="icon" href="data:,">
+<title>Sentence Studio · Parts of speech</title>
+<style>
+:root{color-scheme:light;--ink:#23342e;--muted:#69766d;--line:#dce2d8;--paper:#f6f7f1;--card:#fffefb;font-family:Inter,ui-sans-serif,system-ui,-apple-system,sans-serif}
+*{box-sizing:border-box}[hidden]{display:none!important}body{margin:0;background:var(--paper);color:var(--ink)}button,select,input,textarea{font:inherit}button,select{touch-action:manipulation}button:focus-visible,select:focus-visible,input:focus-visible,textarea:focus-visible{outline:3px solid #213e35;outline-offset:4px}
+.masthead{max-width:1180px;margin:auto;padding:36px 40px 0;display:flex;align-items:center;gap:10px;font-size:12px;font-weight:750;letter-spacing:.12em;text-transform:uppercase}.brand{width:27px;height:27px;border:1px solid #a6b8a6;border-radius:7px;display:grid;place-items:center;color:#347153;font:17px Georgia,serif}.masthead small{margin-left:auto;letter-spacing:.02em;font-weight:400;color:var(--muted)}
+main{max-width:1180px;margin:auto;padding:45px 40px 70px}.intro{display:flex;justify-content:space-between;align-items:end;gap:32px;margin-bottom:32px}.eyebrow{color:#4c765a;font-size:11px;font-weight:750;letter-spacing:.13em;text-transform:uppercase;margin:0 0 15px}h1{font:clamp(36px,4.7vw,58px)/1.07 Georgia,serif;letter-spacing:-.04em;margin:0 0 16px;font-weight:400}h1 em{color:#578065;font-weight:400}.subtitle{font-size:14px;color:var(--muted);line-height:1.7;margin:0;max-width:520px}.stats{display:flex;gap:25px;padding-bottom:3px;flex-shrink:0}.stat b{display:block;font:30px Georgia,serif}.stat span{display:block;color:var(--muted);font-size:10px;text-transform:uppercase;letter-spacing:.08em;margin-top:6px}
+.composer{padding:22px 24px;margin-bottom:24px;background:var(--card);border:1px solid var(--line);border-radius:14px}.composer>label{display:block;font-size:12px;font-weight:650;margin-bottom:12px}.composer textarea{display:block;resize:vertical;min-height:120px;width:100%;border:1px solid #cfdacf;border-radius:8px;padding:14px 16px;font-size:16px;line-height:1.65;background:#fafbf7;color:var(--ink)}.composer textarea::placeholder{color:#87958a}.compose-actions{display:flex;gap:16px;align-items:center;margin-top:14px;flex-wrap:wrap}.parse-button{border:0;border-radius:7px;padding:10px 25px;color:#fff;background:#346548;font-weight:650;cursor:pointer}.parse-button:hover{background:#284f38}.parse-button:disabled{opacity:.5;cursor:default}.compose-help,.parse-status{font-size:12px;color:var(--muted);line-height:1.6}.parse-status{margin:12px 0 0;overflow-wrap:anywhere}.parse-status[data-error=true]{color:#a23038}.parse-cost{margin:12px 0 0;font:11px/1.8 ui-monospace,monospace;color:#526858;white-space:pre-wrap}.empty-state{padding:55px 24px;text-align:center;color:var(--muted);font-size:14px;line-height:1.8}.empty-state strong{display:block;font:24px Georgia,serif;color:var(--ink);margin-bottom:8px}
+.workspace{background:var(--card);border:1px solid var(--line);border-radius:16px;box-shadow:0 7px 25px #263d3010}.toolbar{padding:19px 24px;display:flex;align-items:center;flex-wrap:wrap;gap:18px;border-bottom:1px solid var(--line);font-size:12px}.toolbar label{display:flex;align-items:center;gap:9px;color:#526258}.toolbar select{border:1px solid #d5dfd4;border-radius:7px;padding:8px 30px 8px 10px;background:#fff;color:var(--ink);font-weight:600}.toolbar input{accent-color:#437454;width:15px;height:15px}.hint{margin-left:auto;color:var(--muted);font-size:11px}.legend{display:flex;flex-wrap:wrap;gap:10px 20px;padding:16px 24px;font-size:10px;border-bottom:1px solid #e8ece5;color:var(--muted)}.legend-item{display:flex;align-items:center;gap:6px}.swatch{width:8px;height:8px;border-radius:3px;background:var(--accent)}
+[data-family=noun]{--accent:#28674f;--wash:#e7f1e8;--edge:#bad4bf;--tag:#3e6e50}
+[data-family=verb]{--accent:#365aa6;--wash:#eaf0ff;--edge:#c3d0ed;--tag:#526aa1}
+[data-family=adjective]{--accent:#98651b;--wash:#fbf1d8;--edge:#e9d69f;--tag:#8f7133}
+[data-family=adverb]{--accent:#8d4d92;--wash:#f5eaf6;--edge:#dfc3e1;--tag:#85588a}
+[data-family=pronoun]{--accent:#217b7b;--wash:#e5f3f1;--edge:#b7d9d5;--tag:#40817a}
+[data-family=determiner]{--accent:#8a5d47;--wash:#f5ece5;--edge:#e1cdbf;--tag:#8a6b58}
+[data-family=connector]{--accent:#a45764;--wash:#f9e9ed;--edge:#e8c3cc;--tag:#995e6b}
+[data-family=other]{--accent:#627065;--wash:#f0f2ed;--edge:#d7ded3;--tag:#6c786c}
+.sentence{padding:27px 27px 32px;border-bottom:1px solid #e8ece5}.sentence:last-child{border-bottom:0;border-radius:0 0 16px 16px}.sentence header{display:flex;align-items:center;gap:14px;margin-bottom:22px}.sentence h2{margin:0;font-size:12px;font-weight:650;letter-spacing:.08em;color:#66786b}.sentence h2 span{font-size:10px;text-transform:uppercase;color:#839185;margin-right:6px}.sentence header>span{font-size:10px;color:#8b968b;border-left:1px solid #dce2d8;padding-left:14px}
+.tokens{display:flex;flex-wrap:wrap;align-items:stretch;gap:10px}.token{position:relative;display:flex;flex-direction:column;align-items:flex-start;justify-content:space-between;gap:12px;max-width:100%;min-width:54px;padding:13px 14px 10px;background:var(--wash);color:var(--accent);border:1px solid var(--edge);border-radius:9px;text-align:left;cursor:pointer;transition:box-shadow .15s,transform .15s}.token:hover,.token:focus-visible,.token[aria-expanded=true]{box-shadow:0 4px 12px #21382815;transform:translateY(-2px);border-color:var(--accent)}.word{font:25px/1.1 Georgia,serif;overflow-wrap:anywhere}.part-label,.role-label{font-size:9px;line-height:1.4;font-weight:650;color:var(--tag);max-width:180px;overflow-wrap:anywhere}.role-label{display:none}.roles .role-label{display:block}.roles .part-label{display:none}.uncertainty{display:none;position:absolute;right:-5px;top:-7px;border-radius:50%;background:#8f541e;color:white;width:17px;height:17px;text-align:center;font-size:11px;font-weight:700;line-height:17px}.highlight .token[data-low=true]{outline:2px dashed #ad722d;outline-offset:2px}.highlight .token[data-low=true] .uncertainty{display:block}
+.footer{display:flex;justify-content:space-between;gap:20px;margin-top:20px;color:var(--muted);font-size:11px;line-height:1.8}.footer p{margin:0}.footer strong{font-weight:600;color:#526858}.tooltip{position:fixed;z-index:10;max-width:min(360px,calc(100vw - 24px));width:max-content;padding:18px 20px;background:#233a30;color:#f3f7f0;border:1px solid #476252;border-radius:12px;box-shadow:0 12px 35px #162b3033;pointer-events:none}.tooltip[hidden]{display:none}.tip-position{margin:0 0 10px;font:10px ui-monospace,monospace;color:#b4c7b6}.tip-word{font:26px Georgia,serif;overflow-wrap:anywhere;margin-bottom:15px;max-width:310px}.tooltip dl{margin:0;display:grid;gap:12px}.tooltip dt{font-size:9px;letter-spacing:.1em;text-transform:uppercase;color:#b9d0bc;margin-bottom:4px}.tooltip dd{font-size:12px;line-height:1.5;margin:0;max-width:310px}.tooltip small{display:block;font-size:10px;color:#bdd1c0;margin-top:4px}.tip-note{border-top:1px solid #476252;padding-top:10px;margin:13px 0 0;color:#c2d3c4;font-size:10px;line-height:1.5}
+@media(max-width:760px){.masthead{padding:22px 20px 0}.masthead small{display:none}main{padding:30px 16px}.intro{display:block}.stats{margin-top:26px;gap:30px}.stat b{font-size:25px}.toolbar{padding:16px;gap:12px}.hint{margin-left:0;width:100%}.legend{padding:14px 16px;gap:10px 14px}.sentence{padding:23px 16px}.tokens{gap:9px}.token{padding:11px 12px 9px;gap:9px}.word{font-size:23px}.footer{display:block}.footer p+p{margin-top:10px}}
+@media(prefers-reduced-motion:reduce){.token{transition:none}.token:hover,.token:focus-visible{transform:none}}
+@media print{.tooltip,.toolbar,.composer{display:none}.workspace{box-shadow:none}.token{break-inside:avoid;print-color-adjust:exact}.sentence{break-inside:avoid}}
+</style>
+</head>
+<body>
+<main>
+<div class="intro"><div><h1>Sentences, <em>word by word.</em></h1><p class="subtitle">See what each word is, and the part it plays.<br>Explore the annotations to find the structure inside the sentence.</p></div><div class="stats"><div class="stat"><b id="sentence-count"><!--SENTENCES--></b><span>Sentences</span></div><div class="stat"><b id="token-count"><!--TOKENS--></b><span>Tokens</span></div><div class="stat"><b id="local-count"><!--LOCAL--></b><span>Fully local</span></div></div></div>
+<form class="composer" id="parse-form" <!--FORM-HIDDEN-->>
+<label for="input-text">Your text</label>
+<textarea id="input-text" rows="4" placeholder="The sleepy cat is chasing birds, happily! Running is fun." required aria-describedby="input-help"></textarea>
+<div class="compose-actions"><button class="parse-button" id="parse-button" type="submit" disabled>Parse</button><span class="compose-help" id="input-help">Paste or type a passage. Ctrl/⌘ + Enter to parse.</span></div>
+<p class="parse-status" id="parse-status" role="status" aria-live="polite">Ready when you are. Text is analyzed only when you press Parse.</p>
+<pre class="parse-cost" id="parse-cost" hidden></pre>
+</form>
+<div class="workspace">
+<div class="toolbar"><label for="color-mode">Color &amp; label by <select id="color-mode"><option value="part">Word type</option><option value="role">Grammatical role</option></select></label><label><input type="checkbox" id="uncertain"> Highlight uncertainty <span>(<span id="uncertain-count"><!--UNCERTAIN--></span>)</span></label><span class="hint">Hover, focus, or tap a word for details</span></div>
+<div class="legend" id="legend" aria-label="Color legend"></div>
+<div id="empty-state" class="empty-state" <!--EMPTY-HIDDEN-->><strong>Your sentences will appear here.</strong>Enter some text above and press Parse to explore its grammar.</div>
+<div id="sentence-content"><!--CONTENT--></div>
+</div>
+<div class="footer"><p>Tab to explore · Esc to dismiss</p></div>
+<noscript><p>Enable JavaScript for tooltips and color controls. Word labels remain visible without it.</p></noscript>
+</main>
+<aside class="tooltip" id="tooltip" role="tooltip" hidden><p class="tip-position"></p><div class="tip-word"></div><dl><div><dt>Word type</dt><dd class="tip-part"></dd><small class="tip-pc"></small></div><div><dt>Grammatical role</dt><dd class="tip-role"></dd><small class="tip-rc"></small></div></dl></aside>
+<script>
+(() => {
+  let tokens = [];
+  const tooltip = document.getElementById('tooltip');
+  const mode = document.getElementById('color-mode');
+  let active = null;
+  function hide() { if (active) active.removeAttribute('aria-expanded'); active = null; tooltip.hidden = true; }
+  function show(token) {
+    hide(); active = token; token.setAttribute('aria-expanded', 'true');
+    for (const [name, value] of Object.entries({position: token.dataset.position, word: token.querySelector('.word').textContent, part: token.dataset.part, role: token.dataset.role, pc: token.dataset.pc, rc: token.dataset.rc})) {
+      tooltip.querySelector('.tip-' + name).textContent = value;
+    }
+    tooltip.hidden = false;
+    const box = token.getBoundingClientRect(), tip = tooltip.getBoundingClientRect();
+    const left = Math.max(12, Math.min(box.left, innerWidth - tip.width - 12));
+    const below = box.bottom + 10;
+    const top = below + tip.height < innerHeight - 12 ? below : Math.max(12, box.top - tip.height - 10);
+    tooltip.style.left = left + 'px'; tooltip.style.top = top + 'px';
+  }
+  function bindTokens() {
+    tokens = [...document.querySelectorAll('.token')];
+    for (const token of tokens) {
+      token.addEventListener('mouseenter', () => show(token));
+      token.addEventListener('mouseleave', () => { if (document.activeElement !== token && active === token) hide(); });
+      token.addEventListener('focus', () => show(token));
+      token.addEventListener('blur', () => { if (active === token) hide(); });
+      token.addEventListener('click', () => show(token));
+    }
+  }
+  document.addEventListener('keydown', event => { if (event.key === 'Escape') hide(); });
+  document.addEventListener('pointerdown', event => { if (!event.target.closest('.token')) hide(); });
+  window.addEventListener('scroll', hide, {passive: true});
+  window.addEventListener('resize', hide);
+  function update() {
+    hide(); const role = mode.value === 'role';
+    document.body.classList.toggle('roles', role);
+    const groups = new Map();
+    for (const token of tokens) {
+      const family = role ? token.dataset.roleFamily : token.dataset.partFamily;
+      token.dataset.family = family;
+      groups.set(family, role ? token.dataset.roleGroup : token.dataset.partGroup);
+    }
+    const legend = document.getElementById('legend'); legend.replaceChildren();
+    for (const [family, name] of groups) {
+      const item = document.createElement('span'); item.className = 'legend-item'; item.dataset.family = family;
+      const swatch = document.createElement('span'); swatch.className = 'swatch'; swatch.setAttribute('aria-hidden', 'true');
+      item.append(swatch, document.createTextNode(name)); legend.append(item);
+    }
+  }
+  mode.addEventListener('change', update);
+  document.getElementById('uncertain').addEventListener('change', event => document.body.classList.toggle('highlight', event.target.checked));
+  const form = document.getElementById('parse-form');
+  const input = document.getElementById('input-text');
+  const submit = document.getElementById('parse-button');
+  const status = document.getElementById('parse-status');
+  const cost = document.getElementById('parse-cost');
+  let busy = false;
+  let parsedText = null;
+  input.addEventListener('input', () => {
+    submit.disabled = busy || !input.value.trim();
+    if (parsedText !== null && input.value !== parsedText && !busy) {
+      status.dataset.error = 'false'; status.textContent = 'Text changed. Press Parse to update the results below.';
+    }
+  });
+  input.addEventListener('keydown', event => {
+    if (event.key === 'Enter' && (event.ctrlKey || event.metaKey)) {
+      event.preventDefault(); if (!submit.disabled) form.requestSubmit();
+    }
+  });
+  form.addEventListener('submit', async event => {
+    event.preventDefault(); if (busy || !input.value.trim()) return;
+    busy = true; submit.disabled = true; input.readOnly = true;
+    submit.textContent = 'Parsing…'; form.setAttribute('aria-busy', 'true');
+    status.dataset.error = 'false'; status.textContent = 'Analyzing your text with Jev…';
+    cost.hidden = true; hide();
+    const text = input.value;
+    try {
+      const response = await fetch('/api/parse', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({text})});
+      const result = await response.json();
+      if (result.cost) { cost.textContent = result.cost; cost.hidden = false; }
+      if (!response.ok) throw new Error(result.error || 'Parsing failed. Please try again.');
+      // This HTML is rendered and escaped by our own server, not generated by Jev.
+      document.getElementById('sentence-content').innerHTML = result.view.content;
+      for (const [id, field] of [['sentence-count','sentences'],['token-count','tokens'],['local-count','local'],['uncertain-count','uncertain']]) {
+        document.getElementById(id).textContent = result.view[field];
+      }
+      document.getElementById('empty-state').hidden = true;
+      bindTokens(); update(); parsedText = text;
+      status.textContent = `Parsed ${result.view.sentences} sentence(s), ${result.view.tokens} tokens. Hover or focus a word below to explore.`;
+    } catch (error) {
+      status.dataset.error = 'true';
+      status.textContent = `${error.message} Your text and any previous results have been kept.`;
+    } finally {
+      busy = false; input.readOnly = false; submit.disabled = !input.value.trim();
+      submit.textContent = 'Parse'; form.removeAttribute('aria-busy');
+    }
+  });
+  bindTokens();
+  update();
+})();
+</script>
+</body>
+</html>

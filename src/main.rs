@@ -13,6 +13,8 @@ mod classification;
 mod code_comment;
 mod cost;
 mod load_bearing;
+mod parts_of_speech;
+mod parts_of_speech_viewer;
 mod typesafe;
 use cost::Cost;
 use typesafe::{Answer, Client};
@@ -35,6 +37,10 @@ enum Commands {
     Phi(Phi),
     /// Score JS/TS comments for accuracy and usefulness.
     CodeComments(Phi),
+    /// Classify word types and grammatical roles; emit sentence/token JSON.
+    PartsOfSpeech(parts_of_speech::Options),
+    /// Serve a colored, interactive parts-of-speech annotation viewer.
+    PartsOfSpeechServe(parts_of_speech_viewer::Options),
     /// Score each substantive line's importance; emit JSONL source snapshots.
     LoadBearing(load_bearing::Options),
     /// Serve a syntax-highlighted load-bearing heat map from JSONL.
@@ -167,6 +173,8 @@ fn run(cli: Cli, cost: &Cost) -> Result<()> {
         Commands::Business(args) => be_nice::run_mode(args, cost, be_nice::Mode::Business)?,
         Commands::Job(args) => be_nice::run_mode(args, cost, be_nice::Mode::Job)?,
         Commands::CodeComments(args) => code_comment::run(args, cost)?,
+        Commands::PartsOfSpeech(args) => parts_of_speech::run(args, cost)?,
+        Commands::PartsOfSpeechServe(args) => parts_of_speech_viewer::run(args)?,
         Commands::LoadBearing(args) => load_bearing::run(args, cost)?,
         Commands::LoadBearingServe(args) => load_bearing::serve(args)?,
         Commands::Phi(args) => {
